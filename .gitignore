@@ -1,0 +1,31 @@
+# Logs
+logs
+*.log
+
+# Misc
+.DS_Store
+.fleet
+.idea
+
+# Local env files
+.env
+.env.*
+!.env.example
+
+.pnpm-store
+
+upload
+*.sqlite
+moments.exe
+
+# Node modules & build outputs
+node_modules/
+dist/
+.output/
+.nuxt/
+.rsbuild/
+backend/dist/
+backend/public/
+front-react/node_modules/
+front-react/dist/
+front-react/.rsbuild/
