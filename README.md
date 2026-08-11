@@ -1,257 +1,119 @@
-# Moments - 极简朋友圈
+# Moments - 极简朋友圈 (React 19 / Go)
 
-[![release](https://img.shields.io/badge/release-更新记录-blue)](https://github.com/kingwrcy/moments/releases)
-[![docker-release-status](https://img.shields.io/github/actions/workflow/status/kingwrcy/moments/docker-image-release.yml)](https://github.com/kingwrcy/moments/actions/workflows/docker-image-release.yml)
-[![docker-pull](https://img.shields.io/docker/pulls/kingwrcy/moments)](https://hub.docker.com/repository/docker/kingwrcy/moments)
-[![telegram-group](https://img.shields.io/badge/Telegram-group-blue)](https://t.me/simple_moments)
-[![discussion](https://img.shields.io/badge/moments-论坛-blue)](https://discussion.mblog.club)
+[![release](https://img.shields.io/badge/release-更新记录-blue)](https://github.com/kerntau/moments/releases)
 
-> 从 v0.2.1 开始，Moments 采用 Golang 重写服务端，包体积更小，功能更强！
->
-> 仍需 v0.2.0 版本？[点这里](https://github.com/kingwrcy/moments/blob/master/README.md)
+> Moments 采用 Golang 作为高性能服务端，前端已升级复刻为 React 19 + Rsbuild 现代化架构！包体积更小，渲染性能更佳！
 
 ---
 
-## 功能说明
+## 🌟 技术栈说明
+
+- **后端 (Backend)**：Go 1.23+ / Gin / SQLite / GORM / JWT
+- **React 19 前端 (`front-react/`)**：React 19 + Rsbuild (Rspack) + React Router v7 + Zustand + TailwindCSS v4 + PostCSS + Radix UI (shadcn/ui)
+- **Vue 3 前端 (`front/`)**：Vue 3 + Nuxt 3 (保留参考)
+
+---
+
+## 📱 功能说明
 
 ### 用户系统
 
-- 默认管理员：`admin/a123456`，登录后可在后台修改密码
-- 多用户模式：可以在后台设置是否允许用户注册
+- **默认管理员**：`admin/a123456`，登录后可在后台修改密码
+- **多用户模式**：可在后台设置是否允许自由注册
 
-### Memo
+### Memo 动态
 
-- 支持使用 Markdown 语法编写
-- 支持修改发布时间，若发布时间晚于当前时间，则对游客不可见
-- 支持添加标签，方便分类查找
-- 支持上传图片、视频
-- 支持引用外部音乐、外部视频、外部链接
-- 支持引用豆瓣读书、豆瓣电影
-- 支持点赞、评论，可在后台开启/关闭评论功能
+- 支持使用 **Markdown** 语法编写与实时预览
+- 支持修改发布时间（未来时间对游客隐蔽）
+- 支持标签关联与右键 `#` 标签快捷插入
+- 支持多图拖拽排序 (`sortablejs`) 与全屏图片灯箱预览 (`Fancybox`)
+- 支持本地视频上传与 Bilibili / YouTube 视频内嵌播放
+- 支持外链引用与 MetingJS 音乐播放器
+- 支持豆瓣图书 / 豆瓣电影卡片一键搜索与 3D 悬浮预览
+- 支持点赞、评论防重、评论排序及后台评论功能开关
 
-### 文件上传
+### 文件存储与清理
 
-上传到服务器时：
+- **本地存储**：支持存储至 `$UPLOAD_DIR`，内置 SHA256 秒传机制与图片缩略图自动生成；支持清理无关联垃圾文件至 `$UPLOAD_DIR/removed`。
+- **S3 存储**：兼容 AWS S3、阿里云 OSS、腾讯云 COS 等对象存储服务，支持自动拼接缩略图后缀。
 
-- 支持上传到服务器的 `$UPLOAD_DIR` 目录下
-- 上传文件时，会先通过 SHA256 检查文件是否被上传过，若上传过则可以“秒传”
-- 上传图片时，会自动创建图片的缩略图，在浏览 Memo 时默认加载缩略图
-- 上传文件时，会和 Memo 产生关联，可以在设置中清理无用的文件，无用的文件将会被整理到 `$UPLOAD_DIR/removed` 目录下
+### 其他特性
 
-上传到 S3 时：
-
-- 支持上传到兼容 S3 的存储服务
-- 开启 S3 时，可以设置图片压缩后缀，在浏览 Memo 时，会默认请求带后缀的图片加载缩略图
-
-### 其他功能
-
-以下功能没有详细介绍，请自行探索：
-
-- 友情链接
-- 邮件通知
-- RSS 订阅
-- 暗黑模式
-- 数据库自动备份，当检测到启动的版本发生变化时，自动备份数据库文件到 `$DB` 目录下
+- **暗黑模式**：内置系统级 Dark / Light 主题切换
+- **日历检索**：支持自定义时间段、关键字、标签、可见性组合检索
+- **友情链接**：支持友链申请、后台审核管理
+- **RSS 订阅与邮件通知**：支持评论/互动邮件通知及标准 RSS 输出
 
 ---
 
-## 快速上手
+## 🚀 快速上手
 
-### 应用配置
+### 应用环境变量
 
-支持通过环境变量进行配置：
-
-| 变量名            | 说明                   | 默认值                                                                         |
-| ----------------- | ---------------------- | ------------------------------------------------------------------------------ |
-| PORT              | 监听端口               | 3000                                                                           |
-| CORS_ORIGIN       | 允许的跨域 Origin 列表 | 空，多个 Origin 可以使用英文逗号分隔，如 `http://127.0.0.1,http://10.10.10.10` |
-| JWT_KEY           | JWT 密钥               | 空，不填写则随机生成，重启后需重新登录                                         |
-| DB                | SQLite 数据库存放目录  | /app/data/db.sqlite                                                            |
-| UPLOAD_DIR        | 上传文件本地目录       | /app/data/upload                                                               |
-| LOG_LEVEL         | 日志级别               | info，可选 debug                                                               |
-| ENABLE_SWAGGER    | 启用 Swagger 文档      | false，可选 true，通过 `/swagger/index.html` 访问                              |
-| ENABLE_SQL_OUTPUT | 启用 SQL 输出          | false，可选 true                                                               |
-
-支持 `.env` 文件加载环境变量，示例：
-
-```env
-JWT_KEY=your_secret_key
-LOG_LEVEL=info
-```
-
-### 使用 Docker Cli 启动
-
-启动容器（需替换 `$JWT_KEY`）：
-
-```bash
-docker run -d \
-  -e PORT=3000 \
-  -e JWT_KEY=$JWT_KEY \
-  -p 3000:3000 \
-  -v /var/moments:/app/data \
-  --name moments \
-  kingwrcy/moments:latest
-```
-
-镜像标签可选：
-
-- latest：稳定版
-- dev：开发版，功能前沿但相对不稳定
-
-### 使用 Docker Compose 启动
-
-```yaml
-services:
-  moments:
-    image: kingwrcy/moments:latest
-    container_name: moments
-    restart: always
-    environment:
-      PORT: 3000
-      JWT_KEY: $JWT_KEY
-    ports:
-      - 3000:3000
-    volumes:
-      - /var/moments:/app/data # 持久化数据到主机的 /var/moments 目录，可以按需修改
-```
-
-### 使用可执行文件启动
-
-[下载最新版本](https://github.com/kingwrcy/moments/releases)
-
-示例（Windows 版）：
-
-| 文件名                                         | 说明                         |
-| ---------------------------------------------- | ---------------------------- |
-| `moments-windows-amd64-x.x.x.exe.zip`          | 压缩包，解压后可直接运行     |
-| `moments-windows-amd64-x.x.x.exe-checksum.txt` | `MD5` 校验码，验证文件完整性 |
+| 变量名 | 说明 | 默认值 |
+| --- | --- | --- |
+| PORT | 监听端口 | 3000 |
+| CORS_ORIGIN | 允许的跨域 Origin 列表 | 空，多个 Origin 使用逗号分隔 |
+| JWT_KEY | JWT 密钥 | 空（默认随机生成） |
+| DB | SQLite 数据库路径 | /app/data/db.sqlite |
+| UPLOAD_DIR | 本地上传文件目录 | /app/data/upload |
+| LOG_LEVEL | 日志级别 | info |
 
 ---
 
-## JWT_KEY 生成方式
+## 🛠️ 本地开发指南
 
-方法 1：OpenSSL
+### 1. 使用 Makefile（推荐）
 
-```bash
-openssl rand -hex 32
-```
-
-方法 2：SHA256
-
-```bash
-echo $RANDOM | sha256sum
-```
-
-方法 3：在线生成（[点这里](https://tool.lu/uuid) 生成 UUID）
-
----
-
-## 开发
-
-### 依赖环境
-
-后端：Go 1.23.3+
-前端：NodeJS 18+，使用 PNPM 管理依赖
-
-VSCode 推荐插件：
-
-- gitlens：Git 扩展
-- prettier：代码格式化
-- eslint：代码规范检查
-- golang：Go 语言支持
-
-### 启动
-
-#### 使用 make（推荐）
-
-后端：
-
+#### 启动后端 API 服务：
 ```bash
 cd moments
 make backend-dev
 ```
 
-前端（新终端）：
-
+#### 启动 React 19 前端（新终端）：
 ```bash
 cd moments
-make frontend-install
-make frontend-dev
+make frontend-react-install
+make frontend-react-dev
 ```
+访问前端开发环境：`http://localhost:3000`
 
-#### 手动运行
+---
 
-后端：
+### 2. 手动启动
 
+#### 后端 (Golang)：
 ```bash
 cd moments/backend
-go build -ldflags="-X main.version=local -X main.commitId=local" -o ./dist/moments
-./dist/moments
+go run .
 ```
 
-前端：
-
+#### React 19 前端：
 ```bash
-cd moments/front
+cd moments/front-react
 pnpm install
 pnpm run dev
 ```
 
-启动后访问 `http://localhost:3000`
+---
+
+## 📦 生产打包构建
+
+一键编译 React 静态产物并嵌入 Go 后端单可执行文件：
+
+```bash
+# 1. 编译 React 19 前端产物至 backend/public
+cd moments/front-react
+pnpm run build
+
+# 2. 编译 Go 嵌入式单二进制文件
+cd ../backend
+go build -tags prod -o dist/moments.exe .
+```
 
 ---
 
-## 其他版本
+## 📄 开源许可
 
-| 项目                                                            | 演示地址                                                             |
-| --------------------------------------------------------------- | -------------------------------------------------------------------- |
-| [RandallAnjie/moments](https://github.com/RandallAnjie/moments) | [https://moments.randallanjie.com](https://moments.randallanjie.com) |
-
----
-
-## 致谢 Contributors
-
-感谢所有贡献者!
-
-<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
-<!-- prettier-ignore-start -->
-<!-- markdownlint-disable -->
-<table>
-  <tbody>
-    <tr>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/kingwrcy"><img src="https://avatars.githubusercontent.com/u/1247324?v=4?s=80" width="80px;" alt="kingwrcy"/><br /><sub><b>kingwrcy</b></sub></a><br /></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/RandallAnjie"><img src="https://avatars.githubusercontent.com/u/84122428?v=4?s=80" width="80px;" alt="Randall"/><br /><sub><b>Randall</b></sub></a><br /></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/Jonnyan404"><img src="https://avatars.githubusercontent.com/u/20352705?v=4?s=80" width="80px;" alt="jonny"/><br /><sub><b>jonny</b></sub></a><br /></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/akarikun"><img src="https://avatars.githubusercontent.com/u/11921182?v=4?s=80" width="80px;" alt="akari"/><br /><sub><b>akari</b></sub></a><br /></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/douseful"><img src="https://avatars.githubusercontent.com/u/52767905?v=4?s=80" width="80px;" alt="yee"/><br /><sub><b>yee</b></sub></a><br /></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://www.jschef.com"><img src="https://avatars.githubusercontent.com/u/38160059?v=4?s=80" width="80px;" alt="Chef"/><br /><sub><b>Chef</b></sub></a><br /></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://xwsir.cn"><img src="https://avatars.githubusercontent.com/u/17978673?v=4?s=80" width="80px;" alt="小王先森"/><br /><sub><b>小王先森</b></sub></a><br /></td>
-    </tr>
-    <tr>
-      <td align="center" valign="top" width="14.28%"><a href="https://www.gooth.org"><img src="https://avatars.githubusercontent.com/u/126313?v=4?s=80" width="80px;" alt="Athurg Gooth"/><br /><sub><b>Athurg Gooth</b></sub></a><br /></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/xuewenG"><img src="https://avatars.githubusercontent.com/u/32838722?v=4?s=80" width="80px;" alt="xuewenG"/><br /><sub><b>xuewenG</b></sub></a><br /></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/Secretlovez"><img src="https://avatars.githubusercontent.com/u/40491055?v=4?s=80" width="80px;" alt="Secretlovez"/><br /><sub><b>Secretlovez</b></sub></a><br /></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/jkjoy"><img src="https://avatars.githubusercontent.com/u/23159890?v=4?s=80" width="80px;" alt="浪子"/><br /><sub><b>浪子</b></sub></a><br /></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/lateautumn2"><img src="https://avatars.githubusercontent.com/u/57248164?v=4?s=80" width="80px;" alt="lateautumn2"/><br /><sub><b>lateautumn2</b></sub></a><br /></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/Jinvic"><img src="https://avatars.githubusercontent.com/u/77521861?v=4?s=80" width="80px;" alt="Jinvic"/><br /><sub><b>Jinvic</b></sub></a><br /></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/dianso"><img src="https://avatars.githubusercontent.com/u/1454808?v=4?s=80" width="80px;" alt="DIANSO"/><br /><sub><b>DIANSO</b></sub></a><br /></td>
-    </tr>
-  </tbody>
-</table>
-
-<!-- markdownlint-restore -->
-<!-- prettier-ignore-end -->
-
-<!-- ALL-CONTRIBUTORS-LIST:END -->
-
-This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
-
-欢迎贡献！详情见 [all-contributors](https://github.com/all-contributors/all-contributors) 规范。
-
----
-
-## Star History
-
-[![Star History](https://api.star-history.com/svg?repos=kingwrcy/moments&type=Date)](https://star-history.com/#kingwrcy/moments&Date)
-
-如果你觉得 Moments 还不错，欢迎点个 Star！
+本项目遵循 MIT 许可证。欢迎提交 Issue 与 Pull Request！
