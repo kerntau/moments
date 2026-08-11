@@ -105,8 +105,8 @@ export const Header: React.FC<HeaderProps> = ({ user, onAddFriend }) => {
         </div>
       )}
 
-      {/* 右侧悬浮/工具按钮 */}
-      <div className="dark:bg-neutral-800 hidden sm:flex sm:absolute sm:-right-10 sm:rounded sm:p-2 sm:flex-col sm:w-fit justify-end shadow w-full flex-row top-0 p-1 gap-2 bg-white z-20">
+      {/* 桌面端右侧固定工具按钮 */}
+      <div className="hidden sm:flex sm:absolute sm:-right-10 sm:top-0 sm:rounded sm:p-2 sm:flex-col sm:w-fit sm:shadow bg-white dark:bg-neutral-800 gap-2 z-20">
         {theme === 'dark' ? (
           <Sun
             className="w-5 h-5 cursor-pointer text-yellow-400"
@@ -151,20 +151,28 @@ export const Header: React.FC<HeaderProps> = ({ user, onAddFriend }) => {
         )}
       </div>
 
-      <img className="header-img w-full object-cover max-h-[220px]" src={user.coverUrl} alt="cover" />
-      <div className="absolute right-2 bottom-[-40px]">
-        <div className="userinfo flex flex-col">
-          <div className="flex flex-row items-center gap-4 justify-end">
-            <div className="username text-lg font-bold text-white shadow-sm">
+      {/* 封面图 */}
+      <img
+        className="header-img w-full object-cover h-[220px]"
+        src={user.coverUrl || '/cover.webp'}
+        alt="cover"
+      />
+
+      {/* 用户个人信息与头像（浮动覆盖于封面图右下角） */}
+      <div className="absolute right-2" style={{ bottom: '-40px' }}>
+        <div className="userinfo flex flex-col items-end">
+          <div className="flex flex-row items-center gap-3 justify-end">
+            <div className="username text-lg font-bold text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">
               {user.nickname}
             </div>
             <img
-              src={user.avatarUrl}
-              className="avatar w-[70px] h-[70px] rounded-xl object-cover border-2 border-white dark:border-gray-800 shadow"
+              src={user.avatarUrl || '/avatar.webp'}
+              style={{ width: '70px', height: '70px' }}
+              className="avatar rounded-xl object-cover border-2 border-white dark:border-neutral-800 shadow-md"
               alt="avatar"
             />
           </div>
-          <div className="slogon text-gray-500 dark:text-gray-400 truncate w-full text-end text-xs mt-2">
+          <div className="slogon text-neutral-500 dark:text-neutral-400 truncate w-full text-end text-xs mt-2">
             {user.slogan}
           </div>
         </div>
