@@ -7,9 +7,9 @@ import '@/styles/simple-markdown.scss';
 
 export const App: React.FC = () => {
   return (
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+    <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
       <AppRouter />
-      <Toaster richColors position="top-center" />
+      <Toaster richColors position="top-center" gap={8} visibleToasts={2} />
     </ThemeProvider>
   );
 };

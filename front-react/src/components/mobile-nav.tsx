@@ -18,7 +18,8 @@ import { useGlobalStore } from '@/store';
 export const MobileNav: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, resolvedTheme } = useTheme();
+  const isDark = (theme || resolvedTheme) === 'dark';
 
   const open = useGlobalStore((state) => state.sidebarOpen);
   const setOpen = useGlobalStore((state) => state.setSidebarOpen);
@@ -28,14 +29,7 @@ export const MobileNav: React.FC = () => {
   const path = location.pathname;
 
   const toggleMode = () => {
-    if (theme === 'system') {
-      setTheme('dark');
-    } else if (theme === 'dark') {
-      setTheme('light');
-    } else {
-      setTheme('system');
-      toast.success('显示模式将跟随系统设置');
-    }
+    setTheme(isDark ? 'light' : 'dark');
   };
 
   const handleNavigate = (url: string) => {
@@ -70,14 +64,14 @@ export const MobileNav: React.FC = () => {
             onClick={toggleMode}
           >
             <span className="flex items-center bg-gray-200/75 dark:bg-gray-800/75 p-3 rounded-full">
-              {theme === 'dark' ? (
+              {isDark ? (
                 <Sun className="w-6 h-6 text-yellow-400" />
               ) : (
                 <MoonStar className="w-6 h-6 text-yellow-400" />
               )}
             </span>
             <span className="text-sm mt-1">
-              {theme === 'system' ? '自动' : theme === 'light' ? '亮色' : '暗色'}
+              {isDark ? '暗色' : '亮色'}
             </span>
           </div>
 
