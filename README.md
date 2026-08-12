@@ -9,8 +9,7 @@
 ## 🌟 技术栈说明
 
 - **后端 (Backend)**：Go 1.23+ / Gin / SQLite / GORM / JWT
-- **React 19 前端 (`front-react/`)**：React 19 + Rsbuild (Rspack) + React Router v7 + Zustand + TailwindCSS v4 + PostCSS + Radix UI (shadcn/ui)
-- **Vue 3 前端 (`front/`)**：Vue 3 + Nuxt 3 (保留参考)
+- **前端 (Frontend)**：React 19 + Rsbuild (Rspack) + React Router v7 + Zustand + TailwindCSS v4 + PostCSS + Radix UI (shadcn/ui)
 
 ---
 
@@ -71,11 +70,11 @@ cd moments
 make backend-dev
 ```
 
-#### 启动 React 19 前端（新终端）：
+#### 启动 React 前端（新终端）：
 ```bash
 cd moments
-make frontend-react-install
-make frontend-react-dev
+make frontend-install
+make frontend-dev
 ```
 访问前端开发环境：`http://localhost:3000`
 

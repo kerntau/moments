@@ -1,8 +1,7 @@
 CURRENT_DIR := $(shell pwd)
 WORK_DIR_BACKEND := $(CURRENT_DIR)/backend
 DIST_DIR_BACKEND := $(WORK_DIR_BACKEND)/dist
-WORK_DIR_FRONTEND := $(CURRENT_DIR)/front
-WORK_DIR_FRONTEND_REACT := $(CURRENT_DIR)/front-react
+WORK_DIR_FRONTEND := $(CURRENT_DIR)/front-react
 
 VERSION ?= local
 COMMIT_ID ?= local
@@ -19,25 +18,16 @@ WINDOWS_ARM64_BINARY_NAME := $(BINARY_NAME)-windows-arm64-$(VERSION).exe
 BUILD_CMD_DEV := go build -ldflags="-X main.version=$(VERSION) -X main.commitId=$(COMMIT_ID)"
 BUILD_CMD_PROD := go build -tags prod -ldflags="-s -w -X main.version=$(VERSION) -X main.commitId=$(COMMIT_ID)"
 
-.PHONY: frontend-install frontend-dev backend-dev clean build frontend backend zip checksums frontend-react-install frontend-react-build frontend-react-dev
+.PHONY: frontend-install frontend-dev backend-dev clean build frontend backend zip checksums
 
 frontend-install:
 	cd $(WORK_DIR_FRONTEND) && pnpm i
-
-frontend-react-install:
-	cd $(WORK_DIR_FRONTEND_REACT) && pnpm i
 
 backend-install:
 	cd $(WORK_DIR_BACKEND) && go mod download
 
 frontend-dev:
 	cd $(WORK_DIR_FRONTEND) && pnpm run dev
-
-frontend-react-dev:
-	cd $(WORK_DIR_FRONTEND_REACT) && pnpm run dev
-
-frontend-react-build:
-	cd $(WORK_DIR_FRONTEND_REACT) && pnpm run build
 
 backend-dev:
 	cd $(WORK_DIR_BACKEND) && $(BUILD_CMD_DEV) -o $(DIST_DIR_BACKEND)/$(LINUX_AMD64_BINARY_NAME)
@@ -48,11 +38,9 @@ build: clean frontend-install frontend backend-install backend
 clean:
 	cd $(WORK_DIR_BACKEND) && go clean
 	cd $(WORK_DIR_BACKEND) && rm -rf ./public ./dist
-	cd $(WORK_DIR_FRONTEND) && rm -rf ./.output ./dist
 
 frontend:
-	cd $(WORK_DIR_FRONTEND) && pnpm generate
-	cp -r $(WORK_DIR_FRONTEND)/.output/public $(WORK_DIR_BACKEND)
+	cd $(WORK_DIR_FRONTEND) && pnpm run build
 
 backend:
 	cd $(WORK_DIR_BACKEND) && GOOS=linux GOARCH=amd64 $(BUILD_CMD_PROD) -o $(DIST_DIR_BACKEND)/$(LINUX_AMD64_BINARY_NAME)
