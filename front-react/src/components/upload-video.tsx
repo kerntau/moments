@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { Video as VideoIcon } from 'lucide-react';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { ResponsivePopover, ResponsivePopoverContent, ResponsivePopoverTrigger } from '@/components/ui/responsive-popover';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { FileInput } from '@/components/ui/file-input';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useUpload } from '@/lib/upload';
 import type { Video, VideoType } from '@/types';
@@ -167,50 +168,48 @@ export const UploadVideo: React.FC<UploadVideoProps> = ({
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
+    <ResponsivePopover open={open} onOpenChange={setOpen}>
+      <ResponsivePopoverTrigger asChild>
         <VideoIcon className="cursor-pointer w-6 h-6 text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white transition" />
-      </PopoverTrigger>
-      <PopoverContent className="w-[300px] p-4 flex flex-col gap-3" side="top">
+      </ResponsivePopoverTrigger>
+      <ResponsivePopoverContent className="w-[300px] p-4 flex flex-col gap-3" side="top" title="添加视频">
         <Tabs defaultValue="uploadVideo" className="w-full">
-          <TabsList className="grid grid-cols-2 h-8">
-            <TabsTrigger value="uploadVideo" className="text-xs">
-              本地
+          <TabsList className="grid grid-cols-2 h-9 rounded-xl bg-neutral-100 dark:bg-neutral-800 p-1">
+            <TabsTrigger value="uploadVideo" className="text-xs rounded-lg font-medium">
+              本地上传
             </TabsTrigger>
-            <TabsTrigger value="onlineUrl" className="text-xs">
-              在线
+            <TabsTrigger value="onlineUrl" className="text-xs rounded-lg font-medium">
+              在线嵌入
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="uploadVideo" className="space-y-2 mt-2">
-            <div className="text-xs text-neutral-400">上传视频文件</div>
-            <Input type="file" accept="video/*" className="text-xs cursor-pointer" onChange={handleUploadVideo} />
-            <div className="text-xs text-neutral-400">视频地址</div>
-            <Input className="text-xs h-8" value={onlineUrl} onChange={(e) => setOnlineUrl(e.target.value)} />
+          <TabsContent value="uploadVideo" className="space-y-3 mt-2">
+            <div className="text-xs font-semibold text-neutral-700 dark:text-neutral-300 px-0.5">上传视频文件</div>
+            <FileInput accept="video/*" onChange={handleUploadVideo} />
+            <div className="text-xs font-semibold text-neutral-700 dark:text-neutral-300 px-0.5 pt-1">视频 URL 地址</div>
+            <Input value={onlineUrl} onChange={(e) => setOnlineUrl(e.target.value)} />
 
             {filename && (
-              <div className="text-xs text-neutral-400 space-y-1">
-                <p>正在上传({current}/{total})</p>
-                <p className="truncate">{filename}</p>
+              <div className="text-xs text-neutral-400 space-y-1.5 p-2.5 bg-neutral-50 dark:bg-neutral-800/50 rounded-xl border border-neutral-100 dark:border-neutral-800">
+                <p className="font-medium text-neutral-600 dark:text-neutral-300">正在上传({current}/{total})</p>
+                <p className="truncate text-[11px] text-neutral-400">{filename}</p>
                 <div className="w-full bg-neutral-200 dark:bg-neutral-700 h-1.5 rounded-full overflow-hidden">
-                  <div className="bg-[#9fc84a] h-full transition-all duration-300" style={{ width: `${progress}%` }} />
+                  <div className="bg-sky-500 h-full transition-all duration-300" style={{ width: `${progress}%` }} />
                 </div>
               </div>
             )}
           </TabsContent>
 
-          <TabsContent value="onlineUrl" className="space-y-2 mt-2">
-            <div className="text-xs text-neutral-400">嵌入 B 站视频 (BV号 / 分享链接 / iframe)</div>
+          <TabsContent value="onlineUrl" className="space-y-3 mt-2">
+            <div className="text-xs font-semibold text-neutral-700 dark:text-neutral-300 px-0.5">B站视频 (BV号/链接)</div>
             <Input
-              className="text-xs h-8"
               placeholder="https://player.bilibili.com/..."
               value={bilibiliUrl}
               onChange={(e) => setBilibiliUrl(e.target.value)}
             />
 
-            <div className="text-xs text-neutral-400">嵌入 YouTube 视频</div>
+            <div className="text-xs font-semibold text-neutral-700 dark:text-neutral-300 px-0.5 pt-1">YouTube 视频</div>
             <Input
-              className="text-xs h-8"
               placeholder="https://www.youtube.com/embed/..."
               value={youtubeUrl}
               onChange={(e) => setYoutubeUrl(e.target.value)}
@@ -218,15 +217,24 @@ export const UploadVideo: React.FC<UploadVideoProps> = ({
           </TabsContent>
         </Tabs>
 
-        <div className="flex gap-2 justify-end mt-2">
-          <Button size="sm" onClick={handleConfirm}>
-            确定
-          </Button>
-          <Button size="sm" variant="outline" onClick={reset}>
+        <div className="flex gap-3 pt-2 mt-1">
+          <Button
+            size="sm"
+            variant="outline"
+            className="flex-1 h-10 rounded-xl border-none bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 font-medium text-sm transition-all active:scale-95"
+            onClick={reset}
+          >
             清空
           </Button>
+          <Button
+            size="sm"
+            className="flex-1 h-10 rounded-xl border-none bg-sky-500 hover:bg-sky-600 text-white font-medium text-sm shadow-xs transition-all active:scale-95"
+            onClick={handleConfirm}
+          >
+            确定
+          </Button>
         </div>
-      </PopoverContent>
-    </Popover>
+      </ResponsivePopoverContent>
+    </ResponsivePopover>
   );
 };

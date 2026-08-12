@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { ResponsivePopover, ResponsivePopoverContent, ResponsivePopoverTrigger } from '@/components/ui/responsive-popover';
 import { Button } from '@/components/ui/button';
 
 interface ConfirmProps {
@@ -28,19 +28,19 @@ export const Confirm: React.FC<ConfirmProps> = ({
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>{children}</PopoverTrigger>
-      <PopoverContent className="w-auto p-4" side="top">
-        <p className="text-gray-600 dark:text-gray-300 text-sm mb-2">{title}</p>
-        <div className="flex gap-2 items-center">
-          <Button size="sm" onClick={handleOk}>
-            确定
-          </Button>
-          <Button size="sm" variant="outline" onClick={handleCancel}>
+    <ResponsivePopover open={open} onOpenChange={setOpen}>
+      <ResponsivePopoverTrigger asChild>{children}</ResponsivePopoverTrigger>
+      <ResponsivePopoverContent className="w-64 p-4 flex flex-col gap-3" side="top" title="操作确认">
+        <p className="text-neutral-700 dark:text-neutral-200 text-sm font-medium leading-relaxed">{title}</p>
+        <div className="flex gap-2.5 items-center pt-1">
+          <Button size="sm" variant="outline" className="flex-1 h-9 rounded-xl border-none bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 text-xs font-medium" onClick={handleCancel}>
             取消
           </Button>
+          <Button size="sm" className="flex-1 h-9 rounded-xl border-none bg-rose-500 hover:bg-rose-600 text-white text-xs font-medium shadow-xs" onClick={handleOk}>
+            确定
+          </Button>
         </div>
-      </PopoverContent>
-    </Popover>
+      </ResponsivePopoverContent>
+    </ResponsivePopover>
   );
 };

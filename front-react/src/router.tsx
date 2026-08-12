@@ -13,6 +13,8 @@ import { UserCalendarPage } from '@/pages/user-calendar';
 import { UserProfilePage } from '@/pages/user-profile';
 import { SysSettingsPage } from '@/pages/sys-settings';
 import { TagsPage } from '@/pages/tags';
+import { LocationPage } from '@/pages/location';
+import { OAuthCallbackPage } from '@/pages/oauth-callback';
 
 const router = createBrowserRouter([
   {
@@ -110,6 +112,18 @@ const router = createBrowserRouter([
         <TagsPage />
       </DefaultLayout>
     ),
+  },
+  {
+    path: '/location/:username/:location',
+    element: (
+      <DefaultLayout>
+        <LocationPage />
+      </DefaultLayout>
+    ),
+  },
+  {
+    path: '/oauth/callback/:provider',
+    element: <OAuthCallbackPage />,
   },
 ]);
 

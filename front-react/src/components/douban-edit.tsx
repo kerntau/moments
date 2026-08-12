@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { toast } from 'sonner';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { ResponsivePopover, ResponsivePopoverContent, ResponsivePopoverTrigger } from '@/components/ui/responsive-popover';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useMyFetch } from '@/lib/api';
@@ -54,8 +54,8 @@ export const DoubanEdit: React.FC<DoubanEditProps> = ({
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
+    <ResponsivePopover open={open} onOpenChange={setOpen}>
+      <ResponsivePopoverTrigger asChild>
         <svg
           className="focus:outline-none cursor-pointer w-6 h-6 text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white transition"
           xmlns="http://www.w3.org/2000/svg"
@@ -64,49 +64,59 @@ export const DoubanEdit: React.FC<DoubanEditProps> = ({
         >
           <path d="M15.2735 15H5V7H19V15H17.3764L16.0767 19H21V21H3V19H7.6123L6.8 16.5L8.70211 15.882L9.71522 19H13.9738L15.2735 15ZM3.5 3H20.5V5H3.5V3ZM7 9V13H17V9H7Z" />
         </svg>
-      </PopoverTrigger>
-      <PopoverContent className="w-[300px] p-4 flex flex-col gap-3" side="top">
-        <div className="text-xs font-semibold text-neutral-600 dark:text-neutral-400">选择类型</div>
-        <div className="flex gap-4 text-xs">
-          <label className="flex items-center gap-1 cursor-pointer">
-            <input
-              type="radio"
-              name="doubanType"
-              value="book"
-              checked={selectedType === 'book'}
-              onChange={() => setSelectedType('book')}
-            />
+      </ResponsivePopoverTrigger>
+      <ResponsivePopoverContent side="top" title="豆瓣信息">
+        <div className="text-xs font-semibold text-neutral-700 dark:text-neutral-300 px-0.5">选择解析类型</div>
+        <div className="flex gap-3 text-sm px-0.5">
+          <label
+            className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-xl border cursor-pointer font-medium text-xs transition-all ${
+              selectedType === 'book'
+                ? 'bg-sky-50 dark:bg-sky-950/40 border-sky-200 dark:border-sky-800 text-sky-600 dark:text-sky-400'
+                : 'bg-neutral-100 dark:bg-neutral-800 border-transparent text-neutral-600 dark:text-neutral-300'
+            }`}
+            onClick={() => setSelectedType('book')}
+          >
             <span>豆瓣读书</span>
           </label>
-          <label className="flex items-center gap-1 cursor-pointer">
-            <input
-              type="radio"
-              name="doubanType"
-              value="movie"
-              checked={selectedType === 'movie'}
-              onChange={() => setSelectedType('movie')}
-            />
+          <label
+            className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-xl border cursor-pointer font-medium text-xs transition-all ${
+              selectedType === 'movie'
+                ? 'bg-sky-50 dark:bg-sky-950/40 border-sky-200 dark:border-sky-800 text-sky-600 dark:text-sky-400'
+                : 'bg-neutral-100 dark:bg-neutral-800 border-transparent text-neutral-600 dark:text-neutral-300'
+            }`}
+            onClick={() => setSelectedType('movie')}
+          >
             <span>豆瓣电影</span>
           </label>
         </div>
 
         <Input
           type="text"
-          className="text-xs h-8"
-          placeholder="请输入豆瓣读书/豆瓣电影的ID"
+          className="mt-1"
+          placeholder="请输入豆瓣读书 / 电影的数字ID"
           value={idInput}
           onChange={(e) => setIdInput(e.target.value)}
         />
 
-        <div className="flex gap-2 justify-end mt-2">
-          <Button size="sm" onClick={doParse} disabled={pending}>
+        <div className="flex gap-3 pt-2 mt-1">
+          <Button
+            size="sm"
+            variant="outline"
+            className="flex-1 h-10 rounded-xl border-none bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 font-medium text-sm transition-all active:scale-95"
+            onClick={reset}
+          >
+            清空关闭
+          </Button>
+          <Button
+            size="sm"
+            className="flex-1 h-10 rounded-xl border-none bg-sky-500 hover:bg-sky-600 text-white font-medium text-sm shadow-xs transition-all active:scale-95"
+            onClick={doParse}
+            disabled={pending}
+          >
             {pending ? '解析中...' : '确定'}
           </Button>
-          <Button size="sm" variant="outline" onClick={reset}>
-            清空并关闭
-          </Button>
         </div>
-      </PopoverContent>
-    </Popover>
+      </ResponsivePopoverContent>
+    </ResponsivePopover>
   );
 };

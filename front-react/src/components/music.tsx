@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { Music as MusicIcon } from 'lucide-react';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { ResponsivePopover, ResponsivePopoverContent, ResponsivePopoverTrigger } from '@/components/ui/responsive-popover';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Select } from '@/components/ui/select';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { MusicPreview } from '@/components/music-preview';
 import type { MetingMusicServer, MetingMusicType, MusicDTO } from '@/types';
@@ -81,36 +82,35 @@ export const Music: React.FC<MusicProps> = ({
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
+    <ResponsivePopover open={open} onOpenChange={setOpen}>
+      <ResponsivePopoverTrigger asChild>
         <MusicIcon className="cursor-pointer w-6 h-6 text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white transition" />
-      </PopoverTrigger>
-      <PopoverContent className="w-[350px] p-4 flex flex-col gap-3 max-h-[420px] overflow-y-auto" side="top">
+      </ResponsivePopoverTrigger>
+      <ResponsivePopoverContent side="top" title="添加音乐">
         <Tabs defaultValue="musicID" className="w-full">
-          <TabsList className="grid grid-cols-2 h-8">
-            <TabsTrigger value="musicID" className="text-xs">
+          <TabsList className="grid grid-cols-2">
+            <TabsTrigger value="musicID">
               在线音乐
             </TabsTrigger>
-            <TabsTrigger value="musicAPI" className="text-xs">
+            <TabsTrigger value="musicAPI">
               API接口
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="musicID" className="space-y-3 mt-2">
+          <TabsContent value="musicID" className="space-y-3.5 mt-3">
             <div>
-              <div className="flex justify-between items-center mb-1">
-                <label className="text-xs font-bold text-neutral-700 dark:text-neutral-300">选择平台</label>
+              <div className="flex justify-between items-center mb-1.5 px-0.5">
+                <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">选择平台</label>
                 <a
                   href="https://github.com/metowolf/MetingJS"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[10px] text-neutral-400 underline"
+                  className="text-xs text-sky-500 hover:underline font-medium"
                 >
-                  MetingJS文档
+                  MetingJS 文档
                 </a>
               </div>
-              <select
-                className="w-full h-8 text-xs border rounded px-2 bg-transparent dark:bg-neutral-800"
+              <Select
                 value={server}
                 onChange={(e) => setServer(e.target.value as MetingMusicServer)}
               >
@@ -119,13 +119,12 @@ export const Music: React.FC<MusicProps> = ({
                     {s.label}
                   </option>
                 ))}
-              </select>
+              </Select>
             </div>
 
             <div>
-              <label className="text-xs font-bold text-neutral-700 dark:text-neutral-300 mb-1 block">选择类型</label>
-              <select
-                className="w-full h-8 text-xs border rounded px-2 bg-transparent dark:bg-neutral-800"
+              <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-1.5 px-0.5 block">选择类型</label>
+              <Select
                 value={type}
                 onChange={(e) => setType(e.target.value as MetingMusicType)}
               >
@@ -134,40 +133,54 @@ export const Music: React.FC<MusicProps> = ({
                     {t.label}
                   </option>
                 ))}
-              </select>
+              </Select>
             </div>
 
             <div>
-              <label className="text-xs font-bold text-neutral-700 dark:text-neutral-300 mb-1 block">ID</label>
+              <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-1.5 px-0.5 block">资源 ID</label>
               <Input
-                className="text-xs h-8"
-                placeholder="输入歌曲ID/播放列表ID/专辑ID"
+                placeholder="输入歌曲ID / 播放列表ID / 专辑ID"
                 value={id}
                 onChange={(e) => setId(e.target.value)}
               />
             </div>
           </TabsContent>
 
-          <TabsContent value="musicAPI" className="space-y-2 mt-2">
-            <label className="text-xs font-bold text-neutral-700 dark:text-neutral-300 mb-1 block">API接口地址</label>
-            <Input className="text-xs h-8" value={api} onChange={(e) => setApi(e.target.value)} />
+          <TabsContent value="musicAPI" className="space-y-2 mt-3">
+            <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-1.5 px-0.5 block">API 接口地址</label>
+            <Input value={api} onChange={(e) => setApi(e.target.value)} />
           </TabsContent>
         </Tabs>
 
         {previewing && <MusicPreview id={id} server={server} type={type} api={api} />}
 
-        <div className="flex gap-2 justify-end mt-2">
-          <Button size="sm" variant="secondary" onClick={handlePreview} disabled={previewLoading}>
-            预览
-          </Button>
-          <Button size="sm" onClick={handleConfirm}>
-            确定
-          </Button>
-          <Button size="sm" variant="outline" onClick={handleReset}>
+        <div className="grid grid-cols-3 gap-2.5 pt-3 mt-2 border-t border-neutral-100 dark:border-neutral-800">
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-10 rounded-xl border-none bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 font-medium text-xs transition-all active:scale-95"
+            onClick={handleReset}
+          >
             清空
           </Button>
+          <Button
+            size="sm"
+            variant="secondary"
+            className="h-10 rounded-xl border-none bg-sky-50 dark:bg-sky-950/40 text-sky-600 dark:text-sky-400 font-medium text-xs transition-all active:scale-95"
+            onClick={handlePreview}
+            disabled={previewLoading}
+          >
+            {previewLoading ? '加载中' : '预览'}
+          </Button>
+          <Button
+            size="sm"
+            className="h-10 rounded-xl border-none bg-sky-500 hover:bg-sky-600 text-white font-medium text-xs shadow-xs transition-all active:scale-95"
+            onClick={handleConfirm}
+          >
+            确定
+          </Button>
         </div>
-      </PopoverContent>
-    </Popover>
+      </ResponsivePopoverContent>
+    </ResponsivePopover>
   );
 };

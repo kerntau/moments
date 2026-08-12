@@ -71,6 +71,10 @@ export type SysConfigVO = {
   enableRegister: boolean;
   enableGoogleRecaptcha: boolean;
   googleSiteKey: string;
+  googleSecretKey?: string;
+  enableAmap?: boolean;
+  amapKey?: string;
+  amapSecurityJsCode?: string;
   enableComment: boolean;
   maxCommentLength: number;
   memoMaxHeight: number;
@@ -90,6 +94,26 @@ export type SysConfigVO = {
   smtpPort: string;
   smtpUsername: string;
   smtpPassword: string;
+  // OAuth 配置
+  enableOAuth?: boolean;
+  enableGithubOAuth?: boolean;
+  githubClientId?: string;
+  githubClientSecret?: string;
+  enableGoogleOAuth?: boolean;
+  googleClientId?: string;
+  googleClientSecret?: string;
+  enableQqOAuth?: boolean;
+  qqAppId?: string;
+  qqAppKey?: string;
+  enableWechatOAuth?: boolean;
+  wechatAppId?: string;
+  wechatAppSecret?: string;
+  enableDouyinOAuth?: boolean;
+  douyinClientKey?: string;
+  douyinClientSecret?: string;
+  enableBilibiliOAuth?: boolean;
+  bilibiliClientId?: string;
+  bilibiliClientSecret?: string;
 };
 
 export type MetingJSDTO = {

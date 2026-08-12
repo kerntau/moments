@@ -319,10 +319,12 @@ export const Memo: React.FC<MemoProps> = ({ memo }) => {
           </div>
 
           {parsedLocation && (
-            <div className="text-[#576b95] font-medium dark:text-neutral-300 text-xs mt-2 mb-1 select-none flex items-center gap-1">
-              <MapPin className="w-3.5 h-3.5" />
-              <span>{parsedLocation}</span>
-            </div>
+            <Link to={`/location/${memo.user.username}/${encodeURIComponent(memo.location)}`}>
+              <div className="text-[#576b95] font-medium dark:text-neutral-300 text-xs mt-2 mb-1 select-none flex items-center gap-1 hover:underline cursor-pointer">
+                <MapPin className="w-3.5 h-3.5" />
+                <span>{parsedLocation}</span>
+              </div>
+            </Link>
           )}
 
           <div className="flex justify-between items-center relative mt-1">

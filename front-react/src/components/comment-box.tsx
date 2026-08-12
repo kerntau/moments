@@ -133,12 +133,12 @@ export const CommentBox: React.FC<CommentBoxProps> = ({
         <div className="flex items-center gap-2 absolute right-3 bottom-2">
           {!userinfo.token && (
             <User
-              className="text-[#9fc84a] w-5 h-5 cursor-pointer hover:opacity-80"
+              className="text-sky-500 w-5 h-5 cursor-pointer hover:opacity-80"
               onClick={() => setUserShow(!userShow)}
             />
           )}
           <Smile
-            className="text-[#9fc84a] w-5 h-5 cursor-pointer hover:opacity-80 select-none"
+            className="text-sky-500 w-5 h-5 cursor-pointer hover:opacity-80 select-none"
             onClick={() => setEmojiShow(!emojiShow)}
           />
           <Button size="sm" variant="outline" className="text-xs h-7 px-3" onClick={handleComment}>

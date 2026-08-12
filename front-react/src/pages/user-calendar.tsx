@@ -7,6 +7,7 @@ import { DatePicker } from '@/components/date-picker';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Select } from '@/components/ui/select';
 import { useGlobalStore } from '@/store';
 import { useMyFetch } from '@/lib/api';
 import type { MemoVO, UserVO } from '@/types';
@@ -31,6 +32,8 @@ export const UserCalendarPage: React.FC = () => {
   const [contentContains, setContentContains] = useState('');
   const [availableTags, setAvailableTags] = useState<string[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [locationStats, setLocationStats] = useState<{location: string, count: number}[]>([]);
+  const [selectedLocation, setSelectedLocation] = useState('');
   const [showType, setShowType] = useState<number>(-1);
 
   const [memos, setMemos] = useState<MemoVO[]>([]);
@@ -45,6 +48,13 @@ export const UserCalendarPage: React.FC = () => {
     try {
       const res = await useMyFetch<{ tags: string[] }>('/tag/list');
       setAvailableTags(res.tags || []);
+    } catch (e) {}
+  };
+
+  const loadLocations = async () => {
+    try {
+      const res = await useMyFetch<{ locations: {location: string, count: number}[] }>('/location/list');
+      setLocationStats(res.locations || []);
     } catch (e) {}
   };
 
@@ -63,6 +73,7 @@ export const UserCalendarPage: React.FC = () => {
         contentContains,
         showType,
         tag: selectedTags.join(','),
+        location: selectedLocation,
       });
 
       setMemos(res.list || []);
@@ -70,7 +81,7 @@ export const UserCalendarPage: React.FC = () => {
     } catch (err) {
       console.error('检索 Memo 失败:', err);
     }
-  }, [dateRange, contentContains, showType, selectedTags]);
+  }, [dateRange, contentContains, showType, selectedTags, selectedLocation]);
 
   const loadMore = useCallback(async () => {
     if (loading || !hasNext) return;
@@ -89,6 +100,7 @@ export const UserCalendarPage: React.FC = () => {
         contentContains,
         showType,
         tag: selectedTags.join(','),
+        location: selectedLocation,
       });
 
       setMemos((prev) => [...prev, ...(res.list || [])]);
@@ -99,10 +111,11 @@ export const UserCalendarPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [loading, hasNext, page, dateRange, contentContains, showType, selectedTags]);
+  }, [loading, hasNext, page, dateRange, contentContains, showType, selectedTags, selectedLocation]);
 
   useEffect(() => {
     loadTags();
+    loadLocations();
     reload();
   }, []);
 
@@ -220,16 +233,36 @@ export const UserCalendarPage: React.FC = () => {
         </div>
 
         <div>
+          <label className="font-bold text-xs text-neutral-700 dark:text-neutral-300 mb-1 block">足迹分布</label>
+          <div className="flex flex-wrap gap-1.5 border border-input p-2 rounded-md min-h-[36px]">
+            {locationStats.map((l) => (
+              <span
+                key={l.location}
+                className={`text-xs px-2 py-0.5 rounded cursor-pointer transition flex items-center gap-1 ${
+                  selectedLocation === l.location
+                    ? 'bg-sky-500 text-white'
+                    : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200'
+                }`}
+                onClick={() => setSelectedLocation(selectedLocation === l.location ? '' : l.location)}
+              >
+                <span>{l.location.split(' ').pop()}</span>
+                <span className="opacity-70 text-[10px]">({l.count})</span>
+              </span>
+            ))}
+            {locationStats.length === 0 && <span className="text-xs text-neutral-400 p-1">暂无足迹</span>}
+          </div>
+        </div>
+
+        <div>
           <label className="font-bold text-xs text-neutral-700 dark:text-neutral-300 mb-1 block">可见性</label>
-          <select
-            className="w-full h-9 text-xs border rounded-md px-3 bg-transparent dark:bg-neutral-800"
+          <Select
             value={showType}
             onChange={(e) => setShowType(parseInt(e.target.value, 10))}
           >
             <option value={-1}>所有的</option>
             <option value={1}>公开的</option>
             <option value={0}>自己可见</option>
-          </select>
+          </Select>
         </div>
 
         <Button className="w-full bg-[#9fc84a] hover:bg-[#8eb83f]" onClick={reload}>

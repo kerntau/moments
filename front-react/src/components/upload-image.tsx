@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { toast } from 'sonner';
 import { Image as ImageIcon, Plus, X } from 'lucide-react';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { ResponsivePopover, ResponsivePopoverContent, ResponsivePopoverTrigger } from '@/components/ui/responsive-popover';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { FileInput } from '@/components/ui/file-input';
 import { useUpload } from '@/lib/upload';
 
 interface UploadImageProps {
@@ -70,50 +71,66 @@ export const UploadImage: React.FC<UploadImageProps> = ({ imgs, onChange }) => {
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
+    <ResponsivePopover open={open} onOpenChange={setOpen}>
+      <ResponsivePopoverTrigger asChild>
         <ImageIcon className="cursor-pointer w-6 h-6 text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white transition" />
-      </PopoverTrigger>
-      <PopoverContent className="w-80 p-4 flex flex-col gap-3" side="top">
-        <div className="text-xs text-neutral-500 font-medium">本地上传图片</div>
-        <Input type="file" accept="image/*" multiple onChange={handleUpload} className="text-xs cursor-pointer" />
+      </ResponsivePopoverTrigger>
+      <ResponsivePopoverContent className="w-80 p-4 flex flex-col gap-3" side="top" title="上传图片">
+        <div className="text-xs text-neutral-500 font-medium px-0.5">本地上传图片</div>
+        <FileInput accept="image/*" multiple onChange={handleUpload} />
 
         {imgList.map((img, i) => (
           <div key={i} className="flex items-center gap-2">
-            <Input className="flex-1 text-xs h-8" value={img} readOnly />
-            <X className="w-5 h-5 cursor-pointer text-neutral-400 hover:text-red-500" onClick={() => removeImg(i)} />
+            <Input className="flex-1" value={img} readOnly />
+            <X className="w-5 h-5 cursor-pointer text-neutral-400 hover:text-red-500 shrink-0 transition" onClick={() => removeImg(i)} />
           </div>
         ))}
 
         <div className="flex items-center gap-2">
           <Input
             placeholder="输入图片外链 URL"
-            className="flex-1 text-xs h-8"
+            className="flex-1"
             value={imgUrlToAdd}
             onChange={(e) => setImgUrlToAdd(e.target.value)}
           />
-          <Plus className="w-5 h-5 cursor-pointer text-neutral-400 hover:text-neutral-700 dark:hover:text-white" onClick={addImg} />
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-10 px-3 rounded-xl border-neutral-200 dark:border-neutral-700 text-xs font-medium shrink-0"
+            onClick={addImg}
+          >
+            添加外链
+          </Button>
         </div>
 
         {filename && (
-          <div className="text-xs text-neutral-400 space-y-1">
-            <p>正在上传({current}/{total})</p>
-            <p className="truncate">{filename}</p>
+          <div className="text-xs text-neutral-400 space-y-1.5 p-2 bg-neutral-50 dark:bg-neutral-800/50 rounded-xl border border-neutral-100 dark:border-neutral-800">
+            <p className="font-medium text-neutral-600 dark:text-neutral-300">正在上传({current}/{total})</p>
+            <p className="truncate text-[11px] text-neutral-400">{filename}</p>
             <div className="w-full bg-neutral-200 dark:bg-neutral-700 h-1.5 rounded-full overflow-hidden">
-              <div className="bg-[#9fc84a] h-full transition-all duration-300" style={{ width: `${progress}%` }} />
+              <div className="bg-sky-500 h-full transition-all duration-300" style={{ width: `${progress}%` }} />
             </div>
           </div>
         )}
 
-        <div className="flex gap-2 justify-end mt-2">
-          <Button size="sm" onClick={() => setOpen(false)}>
+        <div className="flex gap-3 pt-2 mt-1">
+          <Button
+            size="sm"
+            variant="outline"
+            className="flex-1 h-10 rounded-xl border-none bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700 font-medium text-sm"
+            onClick={clear}
+          >
+            清空关闭
+          </Button>
+          <Button
+            size="sm"
+            className="flex-1 h-10 rounded-xl border-none bg-sky-500 hover:bg-sky-600 text-white font-medium shadow-sm text-sm"
+            onClick={() => setOpen(false)}
+          >
             确定
           </Button>
-          <Button size="sm" variant="outline" onClick={clear}>
-            清空并关闭
-          </Button>
         </div>
-      </PopoverContent>
-    </Popover>
+      </ResponsivePopoverContent>
+    </ResponsivePopover>
   );
 };

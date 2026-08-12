@@ -1,0 +1,14 @@
+{
+  "name": "moments-root",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -n \"BACKEND,FRONTEND\" -c \"cyan,magenta\" \"cd backend && go run .\" \"cd front-react && pnpm dev\"",
+    "start": "pnpm dev",
+    "dev:backend": "cd backend && go run .",
+    "dev:front": "cd front-react && pnpm dev",
+    "build": "cd front-react && pnpm build && cd ../backend && go build -tags prod -o dist/moments.exe ."
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

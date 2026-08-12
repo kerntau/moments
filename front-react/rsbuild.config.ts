@@ -22,10 +22,22 @@ export default defineConfig({
   server: {
     port: 3000,
     proxy: {
-      '/api': 'http://localhost:37892',
-      '/upload': 'http://localhost:37892',
-      '/rss': 'http://localhost:37892',
-      '/swagger': 'http://localhost:37892',
+      '/api': {
+        target: 'http://localhost:37892',
+        changeOrigin: true,
+      },
+      '/upload': {
+        target: 'http://localhost:37892',
+        changeOrigin: true,
+      },
+      '/rss': {
+        target: 'http://localhost:37892',
+        changeOrigin: true,
+      },
+      '/swagger': {
+        target: 'http://localhost:37892',
+        changeOrigin: true,
+      },
     },
   },
 });

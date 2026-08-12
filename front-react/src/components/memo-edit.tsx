@@ -25,9 +25,11 @@ import { DoubanBookPreview } from '@/components/douban-book-preview';
 import { DoubanMoviePreview } from '@/components/douban-movie-preview';
 import { VideoPreview } from '@/components/video-preview';
 import { VideoPreviewIframe } from '@/components/video-preview-iframe';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { LocationPicker } from '@/components/location-picker';
+import { ResponsivePopover, ResponsivePopoverContent, ResponsivePopoverTrigger } from '@/components/ui/responsive-popover';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from '@/components/ui/context-menu';
 import { useMyFetch } from '@/lib/api';
 import type {
@@ -242,7 +244,7 @@ export const MemoEdit: React.FC<MemoEditProps> = ({ id = 0 }) => {
           <ChevronLeft className="w-5 h-5 mr-2" />
           <span className="font-semibold">{id > 0 ? '修改内容' : '新增内容'}</span>
         </div>
-        <Button size="sm" onClick={saveMemo} className="bg-[#9fc84a] hover:bg-[#8eb83f] text-white">
+        <Button size="sm" onClick={saveMemo} className="bg-sky-500 hover:bg-sky-600 text-white font-medium">
           发表
         </Button>
       </div>
@@ -280,24 +282,21 @@ export const MemoEdit: React.FC<MemoEditProps> = ({ id = 0 }) => {
         />
 
         {/* 自定义时间 Picker Popover */}
-        <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
-          <PopoverTrigger asChild>
+        <ResponsivePopover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
+          <ResponsivePopoverTrigger asChild>
             <CalendarIcon className="w-6 h-6 cursor-pointer text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white transition" />
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-4" side="top">
-            <div className="space-y-2">
-              <div className="text-xs font-semibold text-neutral-600 dark:text-neutral-400">选择发布时间</div>
-              <DatePicker
-                mode="single"
-                value={formState.createdAt ? new Date(formState.createdAt) : new Date()}
-                onChange={(d: Date) => {
-                  if (d) setFormState((prev) => ({ ...prev, createdAt: dayjs(d).format() }));
-                  setDatePickerOpen(false);
-                }}
-              />
-            </div>
-          </PopoverContent>
-        </Popover>
+          </ResponsivePopoverTrigger>
+          <ResponsivePopoverContent className="w-auto p-4" side="top" title="选择发布时间">
+            <DatePicker
+              mode="single"
+              value={formState.createdAt ? new Date(formState.createdAt) : new Date()}
+              onChange={(d: Date) => {
+                if (d) setFormState((prev) => ({ ...prev, createdAt: dayjs(d).format() }));
+                setDatePickerOpen(false);
+              }}
+            />
+          </ResponsivePopoverContent>
+        </ResponsivePopover>
 
         <span title="清空" className="ml-auto flex items-center">
           <RotateCcw
@@ -313,14 +312,14 @@ export const MemoEdit: React.FC<MemoEditProps> = ({ id = 0 }) => {
           <div className="relative">
             <textarea
               ref={textareaRef}
-              rows={8}
+              rows={7}
               placeholder="分享你的此刻想法..."
-              className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring dark:bg-neutral-800"
+              className="w-full rounded-2xl border border-transparent bg-neutral-100/90 dark:bg-neutral-800/60 p-3.5 text-sm transition-all focus:bg-white dark:focus:bg-neutral-900 focus:border-sky-400 dark:focus:border-sky-500 focus:ring-2 focus:ring-sky-400/20 dark:focus:ring-sky-500/20 placeholder:text-neutral-400 focus:outline-none resize-none"
               value={formState.content}
               onChange={(e) => setFormState({ ...formState, content: e.target.value })}
             />
             <Smile
-              className="text-[#9fc84a] w-6 h-6 animate-bounce absolute right-3 bottom-3 cursor-pointer select-none"
+              className="text-sky-500 w-6 h-6 animate-bounce absolute right-3.5 bottom-3.5 cursor-pointer select-none"
               onClick={() => setEmojiShow(!emojiShow)}
             />
           </div>
@@ -343,47 +342,47 @@ export const MemoEdit: React.FC<MemoEditProps> = ({ id = 0 }) => {
 
       {/* 标签选择与创建 */}
       <div className="my-2 space-y-2">
-        <div className="flex flex-wrap items-center gap-1.5 min-h-[32px] p-1.5 border border-input rounded-md bg-transparent dark:bg-neutral-800">
+        <div className="flex flex-wrap items-center gap-1.5 min-h-[38px] p-2 border border-transparent rounded-xl bg-neutral-100/70 dark:bg-neutral-800/50">
           {selectedTags.map((tag) => (
             <span
               key={tag}
-              className="inline-flex items-center gap-1 text-xs bg-[#9fc84a]/20 text-[#6a8d27] dark:text-[#b4e650] px-2 py-1 rounded"
+              className="inline-flex items-center gap-1 text-xs bg-sky-500/15 text-sky-600 dark:text-sky-400 px-2.5 py-1 rounded-lg font-medium"
             >
               #{tag}
               <X className="w-3 h-3 cursor-pointer hover:text-red-500" onClick={() => removeTag(tag)} />
             </span>
           ))}
 
-          <Popover open={tagPopoverOpen} onOpenChange={setTagPopoverOpen}>
-            <PopoverTrigger asChild>
-              <Button size="sm" variant="ghost" className="h-6 px-2 text-xs flex items-center gap-1 text-neutral-500">
+          <ResponsivePopover open={tagPopoverOpen} onOpenChange={setTagPopoverOpen}>
+            <ResponsivePopoverTrigger asChild>
+              <Button size="sm" variant="ghost" className="h-7 px-2.5 text-xs flex items-center gap-1 text-neutral-500 hover:bg-neutral-200/60 dark:hover:bg-neutral-700/60 rounded-lg">
                 <Plus className="w-3.5 h-3.5" /> 选择/添加标签
               </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-64 p-3 flex flex-col gap-2" side="bottom">
+            </ResponsivePopoverTrigger>
+            <ResponsivePopoverContent className="w-64 p-3 flex flex-col gap-3" side="bottom" title="选择标签">
               <div className="flex gap-2">
                 <Input
                   placeholder="新建标签"
-                  className="text-xs h-8"
+                  className="flex-1"
                   value={newTagInput}
                   onChange={(e) => setNewTagInput(e.target.value)}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') addTag(newTagInput);
                   }}
                 />
-                <Button size="sm" className="h-8 text-xs" onClick={() => addTag(newTagInput)}>
+                <Button size="sm" className="h-10 px-4 text-sm bg-sky-500 hover:bg-sky-600 text-white font-medium rounded-xl shrink-0" onClick={() => addTag(newTagInput)}>
                   添加
                 </Button>
               </div>
               {existTags.length > 0 && (
-                <div className="flex flex-wrap gap-1 max-h-32 overflow-y-auto pt-2 border-t border-neutral-100 dark:border-neutral-800">
+                <div className="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto pt-2 border-t border-neutral-100 dark:border-neutral-800">
                   {existTags.map((tag) => (
                     <span
                       key={tag}
-                      className={`text-xs px-2 py-0.5 rounded cursor-pointer transition ${
+                      className={`text-xs px-2.5 py-1 rounded-lg cursor-pointer font-medium transition ${
                         selectedTags.includes(tag)
-                          ? 'bg-[#9fc84a] text-white'
-                          : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200'
+                          ? 'bg-sky-500 text-white shadow-sm'
+                          : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700'
                       }`}
                       onClick={() => (selectedTags.includes(tag) ? removeTag(tag) : addTag(tag))}
                     >
@@ -392,40 +391,34 @@ export const MemoEdit: React.FC<MemoEditProps> = ({ id = 0 }) => {
                   ))}
                 </div>
               )}
-            </PopoverContent>
-          </Popover>
+            </ResponsivePopoverContent>
+          </ResponsivePopover>
         </div>
       </div>
 
       {/* 位置与公开/私密控制 */}
       <div className="flex justify-between items-center pt-2">
-        <Popover open={locationPopoverOpen} onOpenChange={setLocationPopoverOpen}>
-          <PopoverTrigger asChild>
+        <ResponsivePopover open={locationPopoverOpen} onOpenChange={setLocationPopoverOpen}>
+          <ResponsivePopoverTrigger asChild>
             <div className="flex items-center gap-1.5 text-[#576b95] text-sm cursor-pointer hover:underline">
               <MapPin className="w-4 h-4" />
               <span>{formState.location ? parsedLocationLabel : '自定义位置'}</span>
             </div>
-          </PopoverTrigger>
-          <PopoverContent className="w-72 p-3 flex gap-2" side="top">
-            <Input
-              placeholder="自定义位置, 空格分隔"
-              className="text-xs h-8 flex-1"
+          </ResponsivePopoverTrigger>
+          <ResponsivePopoverContent className="w-80 p-4 flex flex-col gap-3" side="top" title="所在位置">
+            <LocationPicker
               value={formState.location}
-              onChange={(e) => setFormState({ ...formState, location: e.target.value })}
+              onChange={(location) => setFormState((prev) => ({ ...prev, location }))}
+              onConfirm={() => setLocationPopoverOpen(false)}
             />
-            <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => setLocationPopoverOpen(false)}>
-              确定
-            </Button>
-          </PopoverContent>
-        </Popover>
+          </ResponsivePopoverContent>
+        </ResponsivePopover>
 
         <div className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400">
           <span>{formState.showType ? '公开' : '私密'}</span>
-          <input
-            type="checkbox"
-            className="w-4 h-4 accent-[#9fc84a] cursor-pointer"
+          <Switch
             checked={formState.showType}
-            onChange={(e) => setFormState({ ...formState, showType: e.target.checked })}
+            onChange={(checked) => setFormState({ ...formState, showType: checked })}
           />
         </div>
       </div>
