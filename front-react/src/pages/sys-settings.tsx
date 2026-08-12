@@ -1,13 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
+import { Eye, EyeOff } from 'lucide-react';
 import { Header } from '@/components/header';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { FileInput } from '@/components/ui/file-input';
+import { Select } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { useGlobalStore } from '@/store';
 import { useMyFetch } from '@/lib/api';
 import { useUpload } from '@/lib/upload';
 import type { SysConfigVO, UserVO } from '@/types';
+import {
+  GithubIcon,
+  GoogleIcon,
+  QqIcon,
+  WechatIcon,
+  DouyinIcon,
+  BilibiliIcon,
+} from '@/components/oauth-icons';
 
 export const SysSettingsPage: React.FC = () => {
   const currentUser = useGlobalStore((state) => state.currentUser as UserVO);
@@ -16,6 +28,8 @@ export const SysSettingsPage: React.FC = () => {
   const [version, setVersion] = useState('');
   const [commitId, setCommitId] = useState('');
   const [showCleanFileModal, setShowCleanFileModal] = useState(false);
+  const [showAmapKey, setShowAmapKey] = useState(false);
+  const [showAmapSecurityCode, setShowAmapSecurityCode] = useState(false);
 
   const [formState, setFormState] = useState<SysConfigVO>({
     enableGoogleRecaptcha: false,
@@ -45,6 +59,10 @@ export const SysSettingsPage: React.FC = () => {
       endpoint: '',
       thumbnailSuffix: '',
     },
+    enableAmap: false,
+    amapKey: '',
+    amapSecurityJsCode: '',
+    enableOAuth: false,
     enableEmail: false,
     smtpHost: '',
     smtpPort: '',
@@ -56,7 +74,11 @@ export const SysSettingsPage: React.FC = () => {
     try {
       const res = await useMyFetch<any>('/sysConfig/getFull');
       if (res) {
-        setFormState(res);
+        setFormState((prev) => ({
+          ...prev,
+          ...res,
+          adminUserName: res.adminUserName || currentUser?.username || 'admin',
+        }));
         setVersion(res.version || '');
         setCommitId(res.commitId || '');
       }
@@ -71,9 +93,13 @@ export const SysSettingsPage: React.FC = () => {
 
   const save = async () => {
     try {
-      await useMyFetch('/sysConfig/save', formState);
+      const payload = {
+        ...formState,
+        adminUserName: formState.adminUserName || currentUser?.username || 'admin',
+      };
+      await useMyFetch('/sysConfig/save', payload);
       toast.success('保存成功');
-      setSysConfig(formState);
+      setSysConfig(payload);
       window.location.reload();
     } catch (err: any) {
       toast.error(err?.message || '保存系统配置失败');
@@ -141,47 +167,35 @@ export const SysSettingsPage: React.FC = () => {
 
         <div>
           <label className="font-bold text-neutral-700 dark:text-neutral-300 mb-1 block">Favicon</label>
-          <Input type="file" accept="image/*" className="text-xs cursor-pointer" onChange={uploadFavicon} />
-          <div className="text-neutral-500 text-xs my-1">或者输入在线地址</div>
-          <Input
-            value={formState.favicon}
-            onChange={(e) => setFormState({ ...formState, favicon: e.target.value })}
-            className="mb-2"
+          <FileInput
+            accept="image/*"
+            onChange={uploadFavicon}
+            urlValue={formState.favicon}
+            onUrlChange={(v) => setFormState({ ...formState, favicon: v })}
+            urlPlaceholder="上传或输入在线地址"
+            previewSrc={formState.favicon}
+            previewClassName="rounded-md p-0.5"
           />
-          {formState.favicon && (
-            <img src={formState.favicon} alt="" className="w-8 h-8 rounded border object-contain" />
-          )}
         </div>
 
         <div className="flex items-center justify-between py-1">
           <label className="font-bold text-neutral-700 dark:text-neutral-300">首页是否自动加载下一页</label>
-          <input
-            type="checkbox"
-            className="w-4 h-4 accent-[#9fc84a] cursor-pointer"
+          <Switch
             checked={formState.enableAutoLoadNextPage}
-            onChange={(e) => setFormState({ ...formState, enableAutoLoadNextPage: e.target.checked })}
+            onChange={(checked) => setFormState({ ...formState, enableAutoLoadNextPage: checked })}
           />
         </div>
 
         <div className="flex items-center justify-between py-1">
           <label className="font-bold text-neutral-700 dark:text-neutral-300">是否启用评论</label>
-          <input
-            type="checkbox"
-            className="w-4 h-4 accent-[#9fc84a] cursor-pointer"
+          <Switch
             checked={formState.enableComment}
-            onChange={(e) => setFormState({ ...formState, enableComment: e.target.checked })}
+            onChange={(checked) => setFormState({ ...formState, enableComment: checked })}
           />
         </div>
 
-        <div className="flex items-center justify-between py-1">
-          <label className="font-bold text-neutral-700 dark:text-neutral-300">是否开启注册用户</label>
-          <input
-            type="checkbox"
-            className="w-4 h-4 accent-[#9fc84a] cursor-pointer"
-            checked={formState.enableRegister}
-            onChange={(e) => setFormState({ ...formState, enableRegister: e.target.checked })}
-          />
-        </div>
+
+
 
         <div>
           <label className="font-bold text-neutral-700 dark:text-neutral-300 mb-1 block">备案号</label>
@@ -192,25 +206,6 @@ export const SysSettingsPage: React.FC = () => {
           />
         </div>
 
-        <div>
-          <label className="font-bold text-neutral-700 dark:text-neutral-300 mb-1 block">自定义CSS</label>
-          <textarea
-            rows={5}
-            className="w-full rounded-md border border-input p-2 text-xs bg-transparent dark:bg-neutral-900"
-            value={formState.css}
-            onChange={(e) => setFormState({ ...formState, css: e.target.value })}
-          />
-        </div>
-
-        <div>
-          <label className="font-bold text-neutral-700 dark:text-neutral-300 mb-1 block">自定义JS</label>
-          <textarea
-            rows={5}
-            className="w-full rounded-md border border-input p-2 text-xs bg-transparent dark:bg-neutral-900"
-            value={formState.js}
-            onChange={(e) => setFormState({ ...formState, js: e.target.value })}
-          />
-        </div>
 
         <div>
           <label className="font-bold text-neutral-700 dark:text-neutral-300 mb-1 block">自定义RSS</label>
@@ -243,35 +238,31 @@ export const SysSettingsPage: React.FC = () => {
 
         <div>
           <label className="font-bold text-neutral-700 dark:text-neutral-300 mb-1 block">评论排序方式(按日期)</label>
-          <select
-            className="w-full h-8 text-xs border rounded px-2 bg-transparent dark:bg-neutral-900"
+          <Select
             value={formState.commentOrder}
             onChange={(e) => setFormState({ ...formState, commentOrder: e.target.value as any })}
           >
             <option value="desc">倒序,越晚发布越靠前</option>
             <option value="asc">正序,越早发布越靠前</option>
-          </select>
+          </Select>
         </div>
 
         <div>
           <label className="font-bold text-neutral-700 dark:text-neutral-300 mb-1 block">日期格式</label>
-          <select
-            className="w-full h-8 text-xs border rounded px-2 bg-transparent dark:bg-neutral-900"
+          <Select
             value={formState.timeFormat}
             onChange={(e) => setFormState({ ...formState, timeFormat: e.target.value as any })}
           >
             <option value="timeAgo">几分钟前</option>
             <option value="time">标准时间格式</option>
-          </select>
+          </Select>
         </div>
 
         <div className="flex items-center justify-between py-1">
           <label className="font-bold text-neutral-700 dark:text-neutral-300">是否启用Google Recaptcha</label>
-          <input
-            type="checkbox"
-            className="w-4 h-4 accent-[#9fc84a] cursor-pointer"
+          <Switch
             checked={formState.enableGoogleRecaptcha}
-            onChange={(e) => setFormState({ ...formState, enableGoogleRecaptcha: e.target.checked })}
+            onChange={(checked) => setFormState({ ...formState, enableGoogleRecaptcha: checked })}
           />
         </div>
 
@@ -295,12 +286,72 @@ export const SysSettingsPage: React.FC = () => {
         )}
 
         <div className="flex items-center justify-between py-1">
+          <label className="font-bold text-neutral-700 dark:text-neutral-300">是否启用高德地图服务</label>
+          <Switch
+            checked={Boolean(formState.enableAmap)}
+            onChange={(checked) => setFormState({ ...formState, enableAmap: checked })}
+          />
+        </div>
+
+        {formState.enableAmap && (
+          <div className="space-y-3 pl-2 border-l-2 border-sky-500">
+            <div>
+              <label className="font-bold text-neutral-700 dark:text-neutral-300 mb-1 block">Web 端 Key</label>
+              <div className="relative">
+                <Input
+                  type={showAmapKey ? 'text' : 'password'}
+                  placeholder="请输入高德地图 Web端(JS API) Key"
+                  value={formState.amapKey || ''}
+                  onChange={(e) => setFormState({ ...formState, amapKey: e.target.value.trim() })}
+                  className="pr-10"
+                />
+                <button
+                  type="button"
+                  className="absolute right-3 top-2.5 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200 transition cursor-pointer"
+                  onClick={() => setShowAmapKey(!showAmapKey)}
+                  title={showAmapKey ? '隐藏密钥' : '显示密钥'}
+                >
+                  {showAmapKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+            <div>
+              <label className="font-bold text-neutral-700 dark:text-neutral-300 mb-1 block">安全密钥 (SecurityJsCode)</label>
+              <div className="relative">
+                <Input
+                  type={showAmapSecurityCode ? 'text' : 'password'}
+                  placeholder="请输入高德地图 Web端安全密钥"
+                  value={formState.amapSecurityJsCode || ''}
+                  onChange={(e) => setFormState({ ...formState, amapSecurityJsCode: e.target.value.trim() })}
+                  className="pr-10"
+                />
+                <button
+                  type="button"
+                  className="absolute right-3 top-2.5 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200 transition cursor-pointer"
+                  onClick={() => setShowAmapSecurityCode(!showAmapSecurityCode)}
+                  title={showAmapSecurityCode ? '隐藏密钥' : '显示密钥'}
+                >
+                  {showAmapSecurityCode ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 第三方 OAuth 登录配置 */}
+        <div className="flex items-center justify-between py-1">
+          <label className="font-bold text-neutral-700 dark:text-neutral-300">是否启用第三方 OAuth 快捷登录</label>
+          <Switch
+            checked={Boolean(formState.enableOAuth)}
+            onChange={(checked) => setFormState({ ...formState, enableOAuth: checked })}
+          />
+        </div>
+
+        <div className="flex items-center justify-between py-1">
           <label className="font-bold text-neutral-700 dark:text-neutral-300">是否启用S3存储</label>
-          <input
-            type="checkbox"
-            className="w-4 h-4 accent-[#9fc84a] cursor-pointer"
+          <Switch
             checked={formState.enableS3}
-            onChange={(e) => setFormState({ ...formState, enableS3: e.target.checked })}
+            onChange={(checked) => setFormState({ ...formState, enableS3: checked })}
           />
         </div>
 
@@ -379,11 +430,9 @@ export const SysSettingsPage: React.FC = () => {
 
         <div className="flex items-center justify-between py-1">
           <label className="font-bold text-neutral-700 dark:text-neutral-300">是否启用邮件通知</label>
-          <input
-            type="checkbox"
-            className="w-4 h-4 accent-[#9fc84a] cursor-pointer"
+          <Switch
             checked={formState.enableEmail}
-            onChange={(e) => setFormState({ ...formState, enableEmail: e.target.checked })}
+            onChange={(checked) => setFormState({ ...formState, enableEmail: checked })}
           />
         </div>
 
@@ -428,7 +477,7 @@ export const SysSettingsPage: React.FC = () => {
           <Button variant="destructive" className="flex-1" onClick={() => setShowCleanFileModal(true)}>
             清理已上传的文件
           </Button>
-          <Button className="flex-1 bg-[#9fc84a] hover:bg-[#8eb83f]" onClick={save}>
+          <Button className="flex-1 bg-sky-500 hover:bg-sky-600 text-white font-medium" onClick={save}>
             保存配置
           </Button>
         </div>
