@@ -85,7 +85,11 @@ export const RegisterPage: React.FC = () => {
               />
             </div>
             <div className="flex gap-2 pt-2">
-              <Button type="submit" disabled={pending} className="bg-[#9fc84a] hover:bg-[#8eb83f]">
+              <Button
+                type="submit"
+                disabled={pending}
+                className="flex-1 h-10 rounded-lg bg-sky-500 hover:bg-sky-600 text-white font-medium shadow-md shadow-sky-500/20 active:scale-[0.98] transition-all cursor-pointer"
+              >
                 {pending ? '注册中...' : '注册'}
               </Button>
               <Link to="/user/login">

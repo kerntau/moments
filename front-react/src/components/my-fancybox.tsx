@@ -26,10 +26,17 @@ export const MyFancyBox: React.FC<MyFancyBoxProps> = ({ children, options }) => 
     if (!container) return;
 
     const galleryId = `gallery-${randomIdRef.current}`;
-    const childrenElements = Array.from(container.children);
-    childrenElements.forEach((el) => {
-      el.setAttribute('data-fancybox', galleryId);
-    });
+    const anchors = container.querySelectorAll('a');
+    if (anchors.length > 0) {
+      anchors.forEach((el) => {
+        el.setAttribute('data-fancybox', galleryId);
+      });
+    } else {
+      const childrenElements = Array.from(container.children);
+      childrenElements.forEach((el) => {
+        el.setAttribute('data-fancybox', galleryId);
+      });
+    }
 
     Fancybox.bind(`[data-fancybox="${galleryId}"]`, {
       Thumbs: {

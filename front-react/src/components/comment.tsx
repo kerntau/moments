@@ -52,23 +52,23 @@ export const Comment: React.FC<CommentProps> = ({ comment, memoId, memoUserId })
   };
 
   return (
-    <div className="text-sm py-1 border-b border-neutral-100 dark:border-neutral-800/50 last:border-none">
+    <div className="text-[14px] leading-[1.45] py-0.5 text-[#111111] dark:text-neutral-100">
       <div>
         {comment.author === memoUserId ? (
-          <span className="text-[#576b95] whitespace-nowrap font-medium">
+          <span className="text-[#576b95] dark:text-[#7d90b8] font-medium mr-1">
             {comment.username}
-            <span className="ml-1 text-[10px] bg-neutral-200 dark:bg-neutral-700 px-1 py-0.5 rounded text-neutral-600 dark:text-neutral-300">
+            <span className="ml-1 text-[10px] bg-black/5 dark:bg-white/10 px-1 py-0.2 rounded text-neutral-500 dark:text-neutral-400 font-normal">
               作者
             </span>
           </span>
         ) : (
-          <span className="text-[#576b95] whitespace-nowrap font-medium">
+          <span className="text-[#576b95] dark:text-[#7d90b8] font-medium mr-1">
             {comment.website ? (
               <a
                 href={formatWebsite(comment.website)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:underline"
+                className="hover:opacity-80"
               >
                 {comment.username}
               </a>
@@ -80,13 +80,13 @@ export const Comment: React.FC<CommentProps> = ({ comment, memoId, memoUserId })
 
         {comment.replyTo && (
           <>
-            <span className="mx-1 text-neutral-500">回复</span>
-            <span className="text-[#576b95] whitespace-nowrap">{comment.replyTo}</span>
+            <span className="mx-1 text-[#111111] dark:text-neutral-300">回复</span>
+            <span className="text-[#576b95] dark:text-[#7d90b8] font-medium mr-1">{comment.replyTo}</span>
           </>
         )}
 
-        <span className="mx-0.5">:</span>
-        <span className="inline break-all cursor-pointer hover:opacity-80 ml-1" onClick={toggle}>
+        <span className="mr-1 text-[#111111] dark:text-neutral-300">:</span>
+        <span className="inline break-all cursor-pointer hover:opacity-80" onClick={toggle}>
           {comment.content}
         </span>
 

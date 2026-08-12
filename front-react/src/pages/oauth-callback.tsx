@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router';
 import { toast } from 'sonner';
 import { Loader2, CheckCircle2, XCircle } from 'lucide-react';
@@ -8,6 +9,7 @@ export const OAuthCallbackPage: React.FC = () => {
   const { provider } = useParams<{ provider: string }>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const setUserinfo = useGlobalStore((state) => state.setUserinfo);
   const setCurrentUser = useGlobalStore((state) => state.setCurrentUser);
 
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
@@ -28,7 +30,7 @@ export const OAuthCallbackPage: React.FC = () => {
         });
 
         if (res && res.token) {
-          localStorage.setItem('token', res.token);
+          setUserinfo(res);
           setStatus('success');
           toast.success(`第三方登录成功，欢迎回来！`);
           
@@ -41,7 +43,7 @@ export const OAuthCallbackPage: React.FC = () => {
           }
 
           setTimeout(() => {
-            navigate('/');
+            window.location.href = '/';
           }, 800);
         } else {
           setStatus('error');

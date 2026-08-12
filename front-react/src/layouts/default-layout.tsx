@@ -92,7 +92,7 @@ export const DefaultLayout: React.FC<DefaultLayoutProps> = ({ children }) => {
 
   return (
     <div className="min-h-screen bg-neutral-100 dark:bg-neutral-950 transition-colors">
-      <div className="w-full md:w-[567px] mx-auto min-h-screen shadow-2xl bg-white dark:bg-neutral-900 relative">
+      <div className="w-full md:w-[567px] mx-auto min-h-screen shadow-2xl bg-white dark:bg-neutral-800 relative">
         {children}
         <Footer />
       </div>
@@ -108,48 +108,8 @@ export const DefaultLayout: React.FC<DefaultLayoutProps> = ({ children }) => {
         </div>
       )}
 
-      {/* 移动端右下角浮动操作栏 */}
-      <div className="sm:hidden relative">
-        <div className="right-4 bottom-10 fixed flex items-center justify-end z-40">
-          <div className="flex flex-col items-center gap-3">
-            {scrollY > 300 && (
-              <div
-                onClick={scrollToTop}
-                className="dark:bg-neutral-800/90 rounded-full bg-white w-10 h-10 flex items-center justify-center shadow-xl border border-neutral-200 dark:border-neutral-700"
-              >
-                <ArrowUp className="w-5 h-5 text-[#9fc84a] cursor-pointer" />
-              </div>
-            )}
-
-            {userinfo.token && location.pathname === '/' && (
-              <Link
-                to="/new"
-                className="dark:bg-neutral-800/90 rounded-full bg-white w-10 h-10 flex items-center justify-center shadow-xl border border-neutral-200 dark:border-neutral-700"
-              >
-                <Camera className="w-5 h-5 text-[#9fc84a]" />
-              </Link>
-            )}
-
-            <div
-              className="dark:bg-neutral-800/90 rounded-full bg-white w-10 h-10 flex items-center justify-center shadow-xl border border-neutral-200 dark:border-neutral-700 cursor-pointer"
-              onClick={() => setSidebarOpen(true)}
-            >
-              <LayoutGrid className="w-5 h-5 text-[#9fc84a]" />
-            </div>
-
-            {!userinfo.token && location.pathname === '/' && (
-              <Link
-                to="/user/login"
-                className="dark:bg-neutral-800/90 rounded-full bg-white w-10 h-10 flex items-center justify-center shadow-xl border border-neutral-200 dark:border-neutral-700"
-              >
-                <LogIn className="w-5 h-5 text-[#9fc84a]" />
-              </Link>
-            )}
-          </div>
-        </div>
-
+        {/* 移动端右下角悬浮展开菜单 */}
         <MobileNav />
       </div>
-    </div>
   );
 };

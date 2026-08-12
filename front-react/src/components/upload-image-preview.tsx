@@ -75,24 +75,23 @@ export const UploadImagePreview: React.FC<UploadImagePreviewProps> = ({
 
   const gridStyle = useMemo(() => {
     const count = isEditMode ? imagesList.length : activeConfigs.length;
-    let base = 'max-width:100%; display:grid; gap: 0.5rem; align-items: start;';
     switch (count) {
       case 1:
-        return { display: 'grid', gap: '0.5rem', gridTemplateColumns: '1fr', maxWidth: '60%' };
+        return { display: 'grid', gap: '0.25rem', gridTemplateColumns: '1fr', maxWidth: '82%' };
       case 2:
-        return { display: 'grid', gap: '0.5rem', gridTemplateColumns: '1fr 1fr', aspectRatio: '2 / 1' };
+        return { display: 'grid', gap: '0.25rem', gridTemplateColumns: '1fr 1fr', maxWidth: '90%' };
       case 3:
-        return { display: 'grid', gap: '0.5rem', gridTemplateColumns: '1fr 1fr 1fr', aspectRatio: '3 / 1' };
+        return { display: 'grid', gap: '0.25rem', gridTemplateColumns: '1fr 1fr 1fr' };
       case 4:
-        return { display: 'grid', gap: '0.5rem', gridTemplateColumns: '1fr 1fr', aspectRatio: '1 / 1' };
+        return { display: 'grid', gap: '0.25rem', gridTemplateColumns: '1fr 1fr', maxWidth: '85%' };
       default:
-        return { display: 'grid', gap: '0.5rem', gridTemplateColumns: '1fr 1fr 1fr' };
+        return { display: 'grid', gap: '0.25rem', gridTemplateColumns: '1fr 1fr 1fr' };
     }
   }, [isEditMode, imagesList.length, activeConfigs.length]);
 
   if (isEditMode && imagesList.length > 0) {
     return (
-      <div ref={sortableContainerRef} style={gridStyle} className="my-2">
+      <div ref={sortableContainerRef} style={gridStyle} className="mt-1 mb-0.5">
         {imagesList.map((img, index) => (
           <div
             key={img.id}
@@ -104,7 +103,7 @@ export const UploadImagePreview: React.FC<UploadImagePreviewProps> = ({
             <img
               src={img.url}
               alt=""
-              className="cursor-move rounded w-full h-full object-cover border border-neutral-200 dark:border-neutral-800"
+              className="cursor-move rounded-[6px] w-full h-full object-cover border border-black/5 dark:border-white/10"
             />
             {onRemoveImage && (
               <div
@@ -120,22 +119,45 @@ export const UploadImagePreview: React.FC<UploadImagePreviewProps> = ({
     );
   }
 
+  if (activeConfigs.length === 1 && !isEditMode) {
+    const imgConfig = activeConfigs[0];
+    return (
+      <MyFancyBox>
+        <div className="mt-1 mb-0.5">
+          <a
+            href={imgConfig.url}
+            data-src={imgConfig.url}
+            className="inline-block overflow-hidden rounded-[6px] max-w-[85%] sm:max-w-[70%]"
+          >
+            <img
+              src={imgConfig.thumbUrl}
+              alt=""
+              className="cursor-zoom-in rounded-[6px] w-auto h-auto max-h-[260px] sm:max-h-[300px] object-cover transition-transform hover:scale-[1.02]"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = imgConfig.url;
+              }}
+            />
+          </a>
+        </div>
+      </MyFancyBox>
+    );
+  }
+
   if (activeConfigs.length > 0) {
     return (
       <MyFancyBox>
-        <div style={gridStyle} className="my-2">
+        <div style={gridStyle} className="mt-1 mb-0.5">
           {activeConfigs.map((imgConfig) => (
             <a
               key={imgConfig.id}
               href={imgConfig.url}
-              className={`block overflow-hidden rounded ${
-                activeConfigs.length === 1 ? 'w-fit max-h-[300px]' : 'w-full aspect-square max-h-[300px]'
-              }`}
+              data-src={imgConfig.url}
+              className="block overflow-hidden rounded-[6px] w-full aspect-square max-h-[300px]"
             >
               <img
                 src={imgConfig.thumbUrl}
                 alt=""
-                className="cursor-zoom-in rounded w-full h-full object-cover transition-transform hover:scale-105"
+                className="cursor-zoom-in rounded-[6px] w-full h-full object-cover transition-transform hover:scale-105"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = imgConfig.url;
                 }}

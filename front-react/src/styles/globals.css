@@ -252,6 +252,36 @@ button:focus-visible {
   }
 }
 
+/* ── 高德地图 Logo 与版权声明强制隐藏 (极致纯净界面) ── */
+.amap-logo,
+.amap-copyright,
+.amap-maptitle,
+.amap-controls,
+.amap-geo {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+@keyframes map-pulse {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+a,
+a:hover,
+a:focus,
+a:active {
+  text-decoration: none !important;
+}
+
 
 
 

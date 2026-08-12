@@ -67,7 +67,7 @@ export const ExternalUrl: React.FC<ExternalUrlProps> = ({
       <ResponsivePopoverTrigger asChild>
         <LinkIcon className="cursor-pointer w-6 h-6 text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white transition" />
       </ResponsivePopoverTrigger>
-      <ResponsivePopoverContent side="top" title="分享链接">
+      <ResponsivePopoverContent className="w-full sm:w-[540px]" side="top" title="分享链接">
         <Input
           placeholder="请输入分享的链接 (https://...)"
           value={url}

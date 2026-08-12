@@ -228,23 +228,23 @@ export const Memo: React.FC<MemoProps> = ({ memo }) => {
       )}
 
       <div
-        className={`relative flex gap-4 text-sm p-4 dark:bg-neutral-800 border-b border-neutral-100 dark:border-neutral-800 ${
+        className={`relative flex gap-3 sm:gap-3.5 text-sm p-3 sm:p-4 dark:bg-neutral-800 border-b border-black/[0.06] dark:border-white/[0.08] ${
           memo.pinned ? 'bg-slate-100 dark:bg-neutral-700/60' : ''
         }`}
       >
-        <div className="avatar">
+        <div className="avatar flex-shrink-0 pt-[1px]">
           <Link to={`/user/${memo.user.id}`}>
             <img
               src={memo.user.avatarUrl}
               alt="Avatar"
-              className="w-10 h-10 rounded-full object-cover border border-neutral-200 dark:border-neutral-700"
+              className="w-[42px] h-[42px] rounded-[6px] object-cover"
             />
           </Link>
         </div>
 
-        <div className="flex flex-col gap-1 flex-1 min-w-0">
-          <div className="username text-[#576b95] mb-1 font-semibold dark:text-neutral-200 flex justify-between items-center">
-            <Link to={`/user/${memo.user.id}`} className="hover:underline">
+        <div className="flex flex-col flex-1 min-w-0">
+          <div className="username text-[#576b95] dark:text-[#7d90b8] mb-0.5 font-semibold text-[15px] leading-snug flex justify-between items-center select-none">
+            <Link to={`/user/${memo.user.id}`} className="hover:opacity-80">
               {memo.user.nickname}
             </Link>
             <div className="flex items-center">
@@ -253,18 +253,18 @@ export const Memo: React.FC<MemoProps> = ({ memo }) => {
             </div>
           </div>
 
-          <div className="mb-2">
+          <div className="mb-1">
             <div style={getMemoMaxHeightStyle()}>
               <div
                 ref={contentRef}
-                className="markdown-content dark:text-neutral-200"
+                className="markdown-content text-[#111111] dark:text-neutral-100 text-[15px] leading-[1.4]"
                 dangerouslySetInnerHTML={{ __html: htmlContent }}
               />
             </div>
 
             {showMore && (
               <div
-                className="text-[#576b95] text-sm my-1 cursor-pointer font-medium hover:underline"
+                className="text-[#576b95] dark:text-[#7d90b8] text-sm my-0.5 cursor-pointer font-medium hover:opacity-80"
                 onClick={() => setShowMoreClicked(!showMoreClicked)}
               >
                 {showMoreClicked ? '收起' : '全文'}
@@ -272,10 +272,10 @@ export const Memo: React.FC<MemoProps> = ({ memo }) => {
             )}
 
             {tags.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 mt-2">
+              <div className="flex flex-wrap gap-2 mt-1 mb-0.5">
                 {tags.map((tag, idx) => (
                   <Link key={idx} to={`/tags/${memo.user.username}/${tag}`}>
-                    <span className="text-xs bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300 px-2 py-0.5 rounded-full hover:opacity-80 transition">
+                    <span className="text-[#576b95] dark:text-[#7d90b8] text-[14px] hover:opacity-80 font-normal">
                       #{tag}
                     </span>
                   </Link>
@@ -285,7 +285,7 @@ export const Memo: React.FC<MemoProps> = ({ memo }) => {
           </div>
 
           {/* 嵌套多媒体扩展预览 */}
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-1.5">
             {memo.externalFavicon && memo.externalTitle && memo.externalUrl && (
               <ExternalUrlPreview
                 favicon={memo.externalFavicon}
@@ -320,15 +320,15 @@ export const Memo: React.FC<MemoProps> = ({ memo }) => {
 
           {parsedLocation && (
             <Link to={`/location/${memo.user.username}/${encodeURIComponent(memo.location)}`}>
-              <div className="text-[#576b95] font-medium dark:text-neutral-300 text-xs mt-2 mb-1 select-none flex items-center gap-1 hover:underline cursor-pointer">
+              <div className="text-[#576b95] dark:text-[#7d90b8] font-medium text-xs mt-1.5 mb-0.5 select-none flex items-center gap-1 hover:opacity-80 cursor-pointer">
                 <MapPin className="w-3.5 h-3.5" />
                 <span>{parsedLocation}</span>
               </div>
             </Link>
           )}
 
-          <div className="flex justify-between items-center relative mt-1">
-            <div className="flex text-xs text-[#9DA4B0]">
+          <div className="flex justify-between items-center relative mt-1.5 mb-1">
+            <div className="flex text-[13px] text-[#b2b2b2] dark:text-neutral-500 font-normal">
               {sysConfig.timeFormat === 'timeAgo'
                 ? dayjs(memo.createdAt).fromNow()
                 : dayjs(memo.createdAt).format('YYYY-MM-DD HH:mm')}
@@ -337,9 +337,9 @@ export const Memo: React.FC<MemoProps> = ({ memo }) => {
 
             <div
               onClick={() => setShowToolbar(!showToolbar)}
-              className="toolbar-icon px-2 py-1 bg-[#f7f7f7] dark:bg-neutral-800 hover:bg-[#dedede] dark:hover:bg-neutral-700 cursor-pointer rounded flex items-center justify-center transition"
+              className="toolbar-icon px-2 py-0.5 bg-[#f7f7f7] dark:bg-neutral-800 hover:bg-[#dedede] dark:hover:bg-neutral-700 cursor-pointer rounded flex items-center justify-center transition"
             >
-              <span className="text-neutral-400 font-bold tracking-widest text-xs">••</span>
+              <span className="text-[#576b95] font-bold tracking-widest text-xs">••</span>
             </div>
 
             {/* 弹出操作小气泡 */}
@@ -348,7 +348,7 @@ export const Memo: React.FC<MemoProps> = ({ memo }) => {
                 ref={toolbarRef}
                 className="absolute top-[-8px] right-[32px] bg-[#4c4c4c] rounded text-white p-2 shadow-xl z-20"
               >
-                <div className="flex flex-row items-center gap-1 text-xs">
+                <div className="flex flex-row items-center divide-x divide-[#6b7280] text-xs">
                   <div
                     className="flex flex-row gap-1 cursor-pointer items-center px-3 hover:opacity-80"
                     onClick={() => likeMemo(memo.id)}
@@ -358,64 +358,64 @@ export const Memo: React.FC<MemoProps> = ({ memo }) => {
                   </div>
 
                   {sysConfig.enableComment && (
-                    <>
-                      <span className="bg-[#6b7280] h-[16px] w-[1px]" />
-                      <div
-                        className="flex flex-row gap-1 cursor-pointer items-center px-3 hover:opacity-80"
-                        onClick={doComment}
-                      >
-                        <MessageSquare className="w-3.5 h-3.5" />
-                        <span>评论</span>
-                      </div>
-                    </>
+                    <div
+                      className="flex flex-row gap-1 cursor-pointer items-center px-3 hover:opacity-80"
+                      onClick={doComment}
+                    >
+                      <MessageSquare className="w-3.5 h-3.5" />
+                      <span>评论</span>
+                    </div>
                   )}
 
                   {location.pathname !== `/memo/${memo.id}` && (
-                    <>
-                      <span className="bg-[#6b7280] h-[16px] w-[1px]" />
-                      <div
-                        className="flex flex-row gap-1 cursor-pointer items-center px-3 hover:opacity-80"
-                        onClick={() => navigate(`/memo/${memo.id}`)}
-                      >
-                        <Eye className="w-3.5 h-3.5" />
-                        <span>详情</span>
-                      </div>
-                    </>
+                    <div
+                      className="flex flex-row gap-1 cursor-pointer items-center px-3 hover:opacity-80"
+                      onClick={() => navigate(`/memo/${memo.id}`)}
+                    >
+                      <Eye className="w-3.5 h-3.5" />
+                      <span>详情</span>
+                    </div>
                   )}
                 </div>
               </div>
             )}
           </div>
 
-          {/* 赞与评论卡片区块 */}
-          <div className="rounded bg-[#f7f7f7] dark:bg-neutral-900 flex flex-col gap-1 mt-2">
-            {memo.favCount > 0 && (
-              <div className="flex flex-row py-2 px-4 gap-2 items-center text-sm border-b border-neutral-200/50 dark:border-neutral-800">
-                <Heart className="w-4 h-4 fill-red-500 text-red-500" />
-                <div className="text-[#576b95] font-medium text-xs">
+          {/* 赞与评论卡片区块 (复刻微信灰底 rounded-[6px] bg-[#f3f3f5]) */}
+          {(memo.favCount > 0 || (sysConfig.enableComment && memo.comments && memo.comments.length > 0)) && (
+            <div className="rounded-[6px] bg-[#f3f3f5] dark:bg-[#2c2c2e] px-3 py-1.5 mt-1.5 text-[14px]">
+              {memo.favCount > 0 && (
+                <div
+                  className={`flex flex-row items-center gap-1.5 text-[14px] text-[#576b95] dark:text-[#7d90b8] font-medium ${
+                    sysConfig.enableComment && memo.comments && memo.comments.length > 0
+                      ? 'pb-1.5 border-b border-black/[0.06] dark:border-white/10 mb-1.5'
+                      : ''
+                  }`}
+                >
+                  <Heart className="w-[15px] h-[15px] text-[#576b95] dark:text-[#7d90b8] stroke-[1.8]" />
                   <span>{memo.favCount}位访客点赞</span>
                 </div>
-              </div>
-            )}
+              )}
 
-            {sysConfig.enableComment && (
-              <div className="flex flex-col gap-1">
-                <CommentBox commentId={0} memoId={memo.id} />
-                {memo.comments && memo.comments.length > 0 && (
-                  <div className="space-y-1 py-2 px-4">
-                    {memo.comments.map((c) => (
-                      <Comment
-                        key={c.id}
-                        comment={c}
-                        memoId={memo.id}
-                        memoUserId={memo.user.id}
-                      />
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
+              {sysConfig.enableComment && (
+                <div>
+                  <CommentBox commentId={0} memoId={memo.id} />
+                  {memo.comments && memo.comments.length > 0 && (
+                    <div className="space-y-1">
+                      {memo.comments.map((c) => (
+                        <Comment
+                          key={c.id}
+                          comment={c}
+                          memoId={memo.id}
+                          memoUserId={memo.user.id}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 

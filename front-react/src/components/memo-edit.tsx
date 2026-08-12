@@ -286,7 +286,7 @@ export const MemoEdit: React.FC<MemoEditProps> = ({ id = 0 }) => {
           <ResponsivePopoverTrigger asChild>
             <CalendarIcon className="w-6 h-6 cursor-pointer text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white transition" />
           </ResponsivePopoverTrigger>
-          <ResponsivePopoverContent className="w-auto p-4" side="top" title="选择发布时间">
+          <ResponsivePopoverContent className="w-auto sm:w-[350px] p-4" side="top" title="选择发布时间">
             <DatePicker
               mode="single"
               value={formState.createdAt ? new Date(formState.createdAt) : new Date()}
@@ -359,7 +359,7 @@ export const MemoEdit: React.FC<MemoEditProps> = ({ id = 0 }) => {
                 <Plus className="w-3.5 h-3.5" /> 选择/添加标签
               </Button>
             </ResponsivePopoverTrigger>
-            <ResponsivePopoverContent className="w-64 p-3 flex flex-col gap-3" side="bottom" title="选择标签">
+            <ResponsivePopoverContent className="w-full sm:w-[320px] p-3.5 flex flex-col gap-3" side="bottom" title="选择标签">
               <div className="flex gap-2">
                 <Input
                   placeholder="新建标签"
@@ -405,7 +405,7 @@ export const MemoEdit: React.FC<MemoEditProps> = ({ id = 0 }) => {
               <span>{formState.location ? parsedLocationLabel : '自定义位置'}</span>
             </div>
           </ResponsivePopoverTrigger>
-          <ResponsivePopoverContent className="w-80 p-4 flex flex-col gap-3" side="top" title="所在位置">
+          <ResponsivePopoverContent className="w-full sm:w-[540px] p-4.5 flex flex-col gap-3.5" side="top" title="所在位置">
             <LocationPicker
               value={formState.location}
               onChange={(location) => setFormState((prev) => ({ ...prev, location }))}

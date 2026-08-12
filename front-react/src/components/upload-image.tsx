@@ -75,7 +75,7 @@ export const UploadImage: React.FC<UploadImageProps> = ({ imgs, onChange }) => {
       <ResponsivePopoverTrigger asChild>
         <ImageIcon className="cursor-pointer w-6 h-6 text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white transition" />
       </ResponsivePopoverTrigger>
-      <ResponsivePopoverContent className="w-80 p-4 flex flex-col gap-3" side="top" title="上传图片">
+      <ResponsivePopoverContent className="w-full sm:w-[540px] p-4.5 flex flex-col gap-3.5" side="top" title="上传图片">
         <div className="text-xs text-neutral-500 font-medium px-0.5">本地上传图片</div>
         <FileInput accept="image/*" multiple onChange={handleUpload} />
 

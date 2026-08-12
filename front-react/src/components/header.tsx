@@ -59,7 +59,7 @@ export const Header: React.FC<HeaderProps> = ({ user, onAddFriend }) => {
   };
 
   return (
-    <div className="header relative mb-14">
+    <div className="header relative">
       {path !== '/' && !path.includes('/memo/') && (
         <div
           className={`flex fixed justify-between items-center p-4 w-full md:w-[567px] text-white top-0 z-30 transition-colors duration-200 ${
@@ -70,12 +70,10 @@ export const Header: React.FC<HeaderProps> = ({ user, onAddFriend }) => {
             <ChevronLeft className="w-5 h-5 mr-4" />
             {path === '/user/calendar' && <span>日历检索</span>}
             {path === '/sys/settings' && <span>系统设置</span>}
-            {path === '/user/settings' && <span>用户中心</span>}
             {path.includes('/tags/') && <span>{params.tag || '话题专栏'}</span>}
             {path === '/friend' && <span>友情链接</span>}
             {path !== '/user/calendar' &&
               path !== '/sys/settings' &&
-              path !== '/user/settings' &&
               !path.includes('/tags/') &&
               path !== '/friend' && (
                 <span>
@@ -85,7 +83,7 @@ export const Header: React.FC<HeaderProps> = ({ user, onAddFriend }) => {
                 </span>
               )}
           </div>
-          {path === '/user/settings' && userinfo.token && (
+          {path === '/sys/settings' && userinfo.token && (
             <div className="hidden sm:flex" title="登出" onClick={logout}>
               <LogOut className="w-5 h-5 cursor-pointer" />
             </div>
@@ -125,13 +123,8 @@ export const Header: React.FC<HeaderProps> = ({ user, onAddFriend }) => {
             <span title="友链" onClick={() => navigate('/friend')}>
               <Users className="text-sky-500 w-5 h-5 cursor-pointer" />
             </span>
-            {userinfo.id === 1 && (
-              <span title="系统设置" onClick={() => navigate('/sys/settings')}>
-                <Settings className="text-sky-500 w-5 h-5 cursor-pointer" />
-              </span>
-            )}
-            <span title="个人设置" onClick={() => navigate('/user/settings')}>
-              <User className="text-sky-500 w-5 h-5 cursor-pointer" />
+            <span title="系统设置" onClick={() => navigate('/sys/settings')}>
+              <Settings className="text-sky-500 w-5 h-5 cursor-pointer" />
             </span>
           </>
         ) : (
@@ -141,31 +134,36 @@ export const Header: React.FC<HeaderProps> = ({ user, onAddFriend }) => {
         )}
       </div>
 
-      {/* 封面图 */}
-      <img
-        className="header-img w-full object-cover h-[220px]"
-        src={user.coverUrl || '/cover.webp'}
-        alt="cover"
-      />
+      {/* 封面图与头像区域 */}
+      <div className="relative h-[190px] sm:h-[220px]">
+        <img
+          className="w-full h-full object-cover"
+          src={user.coverUrl || '/cover.webp'}
+          alt="cover"
+        />
 
-      {/* 用户个人信息与头像（浮动覆盖于封面图右下角） */}
-      <div className="absolute right-2" style={{ bottom: '-40px' }}>
-        <div className="userinfo flex flex-col items-end">
-          <div className="flex flex-row items-center gap-3 justify-end">
-            <div className="username text-lg font-bold text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">
-              {user.nickname}
-            </div>
-            <img
-              src={user.avatarUrl || '/avatar.webp'}
-              style={{ width: '70px', height: '70px' }}
-              className="avatar rounded-full object-cover shadow-md"
-              alt="avatar"
-            />
-          </div>
-          <div className="slogon text-neutral-500 dark:text-neutral-400 truncate w-full text-end text-xs mt-2">
+        {/* 昵称：位于封面图右下角 */}
+        <div className="absolute right-[92px] sm:right-[104px] bottom-3.5 font-semibold text-white drop-shadow-[0_1.5px_3px_rgba(0,0,0,0.85)] text-[16px] sm:text-[17px] select-none">
+          {user.nickname}
+        </div>
+
+        {/* 头像：跨越封面图底部界线 */}
+        <div className="absolute right-3.5 sm:right-4 -bottom-8 w-[68px] h-[68px] sm:w-[76px] sm:h-[76px] rounded-[10px] overflow-hidden border-2 border-white dark:border-neutral-800 bg-white dark:bg-neutral-800 shadow-md flex-shrink-0 z-10">
+          <img
+            src={user.avatarUrl || '/avatar.webp'}
+            className="w-full h-full object-cover"
+            alt="avatar"
+          />
+        </div>
+      </div>
+
+      {/* 头像下方的签名 / slogan 区域（亮色白底，暗色暗底） */}
+      <div className="pt-9 pb-3 px-4 flex justify-end min-h-[48px]">
+        {user.slogan && (
+          <div className="text-neutral-500 dark:text-neutral-400 text-xs sm:text-[13px] font-normal text-right max-w-[260px] sm:max-w-xs break-words">
             {user.slogan}
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

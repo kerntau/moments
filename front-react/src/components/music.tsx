@@ -86,7 +86,7 @@ export const Music: React.FC<MusicProps> = ({
       <ResponsivePopoverTrigger asChild>
         <MusicIcon className="cursor-pointer w-6 h-6 text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white transition" />
       </ResponsivePopoverTrigger>
-      <ResponsivePopoverContent side="top" title="添加音乐">
+      <ResponsivePopoverContent className="w-full sm:w-[540px]" side="top" title="添加音乐">
         <Tabs defaultValue="musicID" className="w-full">
           <TabsList className="grid grid-cols-2">
             <TabsTrigger value="musicID">

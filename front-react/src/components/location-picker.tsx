@@ -66,23 +66,44 @@ const DEFAULT_POIS: POIItem[] = [
   },
 ];
 
-// 高德地图 SDK 动态加载函数
+// 高德地图 SDK 动态加载单例
+let amapPromise: Promise<any> | null = null;
+let amapLoadFailed = false;
+
 const loadAmapSDK = (key: string, securityCode?: string): Promise<any> => {
-  return new Promise((resolve, reject) => {
-    if ((window as any).AMap) {
-      resolve((window as any).AMap);
-      return;
-    }
+  if (amapLoadFailed) {
+    return Promise.reject(new Error('高德地图网络连接失败'));
+  }
+  if ((window as any).AMap) {
+    return Promise.resolve((window as any).AMap);
+  }
+  if (amapPromise) {
+    return amapPromise;
+  }
+
+  amapPromise = new Promise((resolve, reject) => {
     if (securityCode) {
       (window as any)._AMapSecurityConfig = { securityJsCode: securityCode };
     }
     const script = document.createElement('script');
     script.type = 'text/javascript';
+    script.async = true;
     script.src = `https://webapi.amap.com/maps?v=2.0&key=${key}&plugin=AMap.PlaceSearch,AMap.Geolocation,AMap.Geocoder`;
-    script.onerror = reject;
-    script.onload = () => resolve((window as any).AMap);
+    script.onerror = (err) => {
+      amapLoadFailed = true;
+      amapPromise = null;
+      if (script.parentNode) {
+        script.parentNode.removeChild(script);
+      }
+      reject(err);
+    };
+    script.onload = () => {
+      resolve((window as any).AMap);
+    };
     document.head.appendChild(script);
   });
+
+  return amapPromise;
 };
 
 export const LocationPicker: React.FC<LocationPickerProps> = ({
@@ -98,43 +119,129 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
   const amapInstanceRef = useRef<any>(null);
   const markerInstanceRef = useRef<any>(null);
 
+  const onChangeRef = useRef(onChange);
+  onChangeRef.current = onChange;
+
+  const onConfirmRef = useRef(onConfirm);
+  onConfirmRef.current = onConfirm;
+
   const [searchQuery, setSearchQuery] = useState('');
   const [searching, setSearching] = useState(false);
   const [searchResults, setSearchResults] = useState<POIItem[]>([]);
+  const [nearbyPois, setNearbyPois] = useState<POIItem[]>([]);
   const [locating, setLocating] = useState(false);
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>({
     lat: 39.9042,
     lng: 116.4074,
   });
 
-  // 高德矢量地图初始化与坐标移动
+  // 高德矢量地图初始化、坐标移动与点击选点写入
   useEffect(() => {
     if (amapKey && mapContainerRef.current && coords) {
       loadAmapSDK(amapKey, amapSecurityCode)
         .then((AMap) => {
           if (!amapInstanceRef.current) {
+            const isDark = document.documentElement.classList.contains('dark');
+            const mapStyle = isDark ? 'amap://styles/dark' : 'amap://styles/fresh';
+
             const map = new AMap.Map(mapContainerRef.current, {
               center: [coords.lng, coords.lat],
               zoom: 15,
-              dragEnable: true,
-              zoomEnable: true,
+              mapStyle: mapStyle,
+              viewMode: '2D',
             });
+
+            const markerContent = document.createElement('div');
+            markerContent.innerHTML = `
+              <div style="position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                <div style="position: absolute; bottom: 0px; width: 14px; height: 4px; background: rgba(0,0,0,0.2); border-radius: 50%; filter: blur(1.5px);"></div>
+                <div style="position: absolute; width: 26px; height: 26px; background: rgba(14, 165, 233, 0.25); border-radius: 50%; animation: map-pulse 2s infinite ease-out;"></div>
+                <div style="position: relative; width: 20px; height: 20px; background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%); border: 2px solid #ffffff; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); box-shadow: 0 4px 10px rgba(2, 132, 199, 0.4); display: flex; align-items: center; justify-content: center; margin-bottom: 6px;">
+                  <div style="width: 5px; height: 5px; background: #ffffff; border-radius: 50%; transform: rotate(45deg);"></div>
+                </div>
+              </div>
+            `;
+
             const marker = new AMap.Marker({
               position: [coords.lng, coords.lat],
               map: map,
+              content: markerContent,
+              offset: new AMap.Pixel(-10, -20),
             });
             amapInstanceRef.current = map;
             markerInstanceRef.current = marker;
+
+            // 高德地图点击选点
+            map.on('click', (e: any) => {
+              const { lng, lat } = e.lnglat;
+              setCoords({ lat, lng });
+              marker.setPosition([lng, lat]);
+            });
           } else {
             amapInstanceRef.current.setCenter([coords.lng, coords.lat]);
             markerInstanceRef.current.setPosition([coords.lng, coords.lat]);
           }
         })
-        .catch((e) => {
-          console.error('高德地图渲染失败:', e);
+        .catch(() => {
+          // 静默降级，避免网络断连时控制台高频刷屏
         });
     }
   }, [amapKey, amapSecurityCode, coords]);
+
+  // 当地图坐标 coords 改变时，自动反查高德周边 500 米热点 POI 并联动刷新下方列表
+  useEffect(() => {
+    if (!coords) return;
+    const { lng, lat } = coords;
+
+    if (amapKey) {
+      loadAmapSDK(amapKey, amapSecurityCode)
+        .then((AMap) => {
+          AMap.plugin(['AMap.PlaceSearch', 'AMap.Geocoder'], () => {
+            // 1. 周边 POI 检索 (扩大至 20 条记录)
+            const placeSearch = new AMap.PlaceSearch({
+              pageSize: 20,
+              pageIndex: 1,
+            });
+            placeSearch.searchNearBy('', [lng, lat], 500, (status: string, result: any) => {
+              if (status === 'complete' && result.poiList && result.poiList.pois) {
+                const pois: POIItem[] = result.poiList.pois.map((poi: any, idx: number) => {
+                  const rawLoc = `${poi.cityname || poi.pname || ''} · ${poi.name}`;
+                  return {
+                    id: `nearby-${poi.id || idx}`,
+                    name: poi.name,
+                    address: poi.address || `${poi.pname || ''}${poi.cityname || ''}${poi.adname || ''}`,
+                    rawLocation: rawLoc,
+                    lat: poi.location ? poi.location.lat : undefined,
+                    lng: poi.location ? poi.location.lng : undefined,
+                  };
+                });
+                setNearbyPois(pois);
+              }
+            });
+
+            // 2. 逆地理编码获得当前点精密地名并写入
+            const geocoder = new AMap.Geocoder();
+            geocoder.getAddress([lng, lat], (status: string, result: any) => {
+              if (status === 'complete' && result.regeocode) {
+                const addr = result.regeocode.addressComponent;
+                const formatted = [
+                  addr.city || addr.province,
+                  addr.district,
+                  addr.township || addr.street || result.regeocode.formattedAddress?.split(addr.district)[1] || '',
+                ]
+                  .filter(Boolean)
+                  .join(' ');
+                const mainName = formatted || result.regeocode.formattedAddress;
+                if (mainName) {
+                  onChangeRef.current(mainName);
+                }
+              }
+            });
+          });
+        })
+        .catch(() => {});
+    }
+  }, [coords, amapKey, amapSecurityCode]);
 
   // 防抖并发起真实地图 POI 检索 (支持高德官方与 OpenStreetMap)
   useEffect(() => {
@@ -149,7 +256,7 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
         try {
           const AMap = await loadAmapSDK(amapKey, amapSecurityCode);
           AMap.plugin(['AMap.PlaceSearch'], () => {
-            const placeSearch = new AMap.PlaceSearch({ pageSize: 10 });
+            const placeSearch = new AMap.PlaceSearch({ pageSize: 20 });
             placeSearch.search(searchQuery.trim(), (status: string, result: any) => {
               if (status === 'complete' && result.poiList && result.poiList.pois) {
                 const pois: POIItem[] = result.poiList.pois.map((poi: any, idx: number) => {
@@ -243,10 +350,10 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
                   .filter(Boolean)
                   .join(' ');
                 if (formatted) {
-                  onChange(formatted);
+                  onChangeRef.current(formatted);
                   toast.success('已使用高德地图精准定位');
                 } else if (result.formattedAddress) {
-                  onChange(result.formattedAddress);
+                  onChangeRef.current(result.formattedAddress);
                   toast.success('已获取定位');
                 }
               } else {
@@ -315,17 +422,20 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
     );
   };
 
-  // 根据搜索关键字过滤列表或展示真实检索结果
+  // 根据搜索关键字过滤列表或优先展示高德地图选点周边的 POI 列表
   const activePois = useMemo(() => {
     if (searchQuery.trim() && searchResults.length > 0) {
       return searchResults;
+    }
+    if (!searchQuery.trim() && nearbyPois.length > 0) {
+      return nearbyPois;
     }
     if (!searchQuery.trim()) return DEFAULT_POIS;
     const q = searchQuery.trim().toLowerCase();
     return DEFAULT_POIS.filter(
       (item) => item.name.toLowerCase().includes(q) || item.address.toLowerCase().includes(q)
     );
-  }, [searchQuery, searchResults]);
+  }, [searchQuery, searchResults, nearbyPois]);
 
   // 判断自定义创建选项
   const isCustomInputAvailable =
@@ -333,12 +443,12 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
     !activePois.some((item) => item.name === searchQuery.trim() || item.rawLocation === searchQuery.trim());
 
   const handleSelectLocation = (item: POIItem | { rawLocation: string; lat?: number; lng?: number }, autoConfirm = false) => {
-    onChange(item.rawLocation);
+    onChangeRef.current(item.rawLocation);
     if (item.lat && item.lng) {
       setCoords({ lat: item.lat, lng: item.lng });
     }
     if (autoConfirm) {
-      onConfirm();
+      onConfirmRef.current();
     }
   };
 
@@ -385,7 +495,7 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
       )}
 
       {/* 微信 / iOS 极简无界列表 */}
-      <div className="flex flex-col rounded-2xl border border-neutral-100 dark:border-neutral-800/80 bg-white dark:bg-neutral-900 max-h-64 overflow-y-auto px-3 py-1">
+      <div className="flex flex-col rounded-2xl border border-neutral-100 dark:border-neutral-800/80 bg-white dark:bg-neutral-900 max-h-[360px] sm:max-h-[380px] overflow-y-auto px-3 py-1">
         {/* 1. 不显示位置 */}
         <div
           className="flex items-center justify-between py-3 cursor-pointer border-b border-neutral-100 dark:border-neutral-800/60 active:bg-neutral-50 dark:active:bg-neutral-800/50 transition-colors"
@@ -460,7 +570,12 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
         <Button
           size="sm"
           className="flex-1 h-10 rounded-xl border-none bg-sky-500 hover:bg-sky-600 text-white font-medium text-sm shadow-xs transition-all active:scale-95"
-          onClick={onConfirm}
+          onClick={() => {
+            if (searchQuery.trim() && !value) {
+              onChange(searchQuery.trim());
+            }
+            onConfirm();
+          }}
         >
           确定
         </Button>

@@ -77,7 +77,7 @@ const router = createBrowserRouter([
     path: '/user/settings',
     element: (
       <DefaultLayout>
-        <UserSettingsPage />
+        <SysSettingsPage />
       </DefaultLayout>
     ),
   },

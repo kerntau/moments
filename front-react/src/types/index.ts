@@ -96,6 +96,7 @@ export type SysConfigVO = {
   smtpPassword: string;
   // OAuth 配置
   enableOAuth?: boolean;
+  oauthServerUrl?: string;
   enableGithubOAuth?: boolean;
   githubClientId?: string;
   githubClientSecret?: string;

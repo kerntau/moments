@@ -172,7 +172,7 @@ export const UploadVideo: React.FC<UploadVideoProps> = ({
       <ResponsivePopoverTrigger asChild>
         <VideoIcon className="cursor-pointer w-6 h-6 text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white transition" />
       </ResponsivePopoverTrigger>
-      <ResponsivePopoverContent className="w-[300px] p-4 flex flex-col gap-3" side="top" title="添加视频">
+      <ResponsivePopoverContent className="w-full sm:w-[540px] p-4.5 flex flex-col gap-3.5" side="top" title="添加视频">
         <Tabs defaultValue="uploadVideo" className="w-full">
           <TabsList className="grid grid-cols-2 h-9 rounded-xl bg-neutral-100 dark:bg-neutral-800 p-1">
             <TabsTrigger value="uploadVideo" className="text-xs rounded-lg font-medium">

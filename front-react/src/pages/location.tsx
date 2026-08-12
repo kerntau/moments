@@ -153,14 +153,32 @@ export const LocationPage: React.FC = () => {
                 const loc = result.geocodes[0].location;
                 setCoords({ lat: loc.lat, lng: loc.lng });
                 if (mapContainerRef.current) {
+                  const isDark = document.documentElement.classList.contains('dark');
+                  const mapStyle = isDark ? 'amap://styles/dark' : 'amap://styles/fresh';
+
                   const map = new AMap.Map(mapContainerRef.current, {
                     center: [loc.lng, loc.lat],
-                    zoom: 14,
+                    zoom: 14.5,
+                    mapStyle: mapStyle,
+                    viewMode: '2D',
                   });
+
+                  const markerContent = document.createElement('div');
+                  markerContent.innerHTML = `
+                    <div style="position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                      <div style="position: absolute; bottom: 0px; width: 14px; height: 4px; background: rgba(0,0,0,0.2); border-radius: 50%; filter: blur(1.5px);"></div>
+                      <div style="position: absolute; width: 26px; height: 26px; background: rgba(14, 165, 233, 0.25); border-radius: 50%; animation: map-pulse 2s infinite ease-out;"></div>
+                      <div style="position: relative; width: 20px; height: 20px; background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%); border: 2px solid #ffffff; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); box-shadow: 0 4px 10px rgba(2, 132, 199, 0.4); display: flex; align-items: center; justify-content: center; margin-bottom: 6px;">
+                        <div style="width: 5px; height: 5px; background: #ffffff; border-radius: 50%; transform: rotate(45deg);"></div>
+                      </div>
+                    </div>
+                  `;
+
                   new AMap.Marker({
                     position: [loc.lng, loc.lat],
                     map: map,
-                    title: locationName,
+                    content: markerContent,
+                    offset: new AMap.Pixel(-10, -20),
                   });
                   amapInstanceRef.current = map;
                 }
@@ -190,24 +208,24 @@ export const LocationPage: React.FC = () => {
       {user && <Header user={user} />}
       
       {/* 顶部地图或地址信息展示 */}
-      <div className="p-4 bg-white dark:bg-neutral-900 border-b border-neutral-100 dark:border-neutral-800">
-        <div className="relative w-full h-36 rounded-2xl overflow-hidden border border-neutral-200/80 dark:border-neutral-800 bg-gradient-to-br from-sky-50/80 via-neutral-50 to-sky-100/50 dark:from-neutral-800 dark:to-neutral-900 shadow-sm flex items-center justify-center">
+      <div className="p-3 bg-white dark:bg-neutral-900 border-b border-neutral-100 dark:border-neutral-800">
+        <div className="relative w-full h-32 rounded-2xl overflow-hidden border border-neutral-200/60 dark:border-neutral-800/80 bg-neutral-100 dark:bg-neutral-800/80 shadow-sm">
           {amapKey ? (
             <div ref={mapContainerRef} className="w-full h-full" />
           ) : (
-            <div className="flex flex-col items-center text-center p-4">
-              <div className="w-10 h-10 rounded-full bg-sky-500/15 flex items-center justify-center text-sky-500 mb-2 shadow-xs">
-                <MapPin className="w-5 h-5" />
+            <div className="flex flex-col items-center text-center p-3">
+              <div className="w-8 h-8 rounded-full bg-sky-500/15 flex items-center justify-center text-sky-500 mb-1 shadow-xs">
+                <MapPin className="w-4 h-4" />
               </div>
-              <span className="text-base font-bold text-neutral-800 dark:text-neutral-100">{locationName}</span>
-              <span className="text-xs text-neutral-400 mt-0.5">自定义地理位置</span>
+              <span className="text-sm font-bold text-neutral-800 dark:text-neutral-100">{locationName}</span>
+              <span className="text-[11px] text-neutral-400 mt-0.5">自定义地理位置</span>
             </div>
           )}
           
           {amapKey && (
-            <div className="absolute top-3 left-3 bg-white/95 dark:bg-neutral-900/95 backdrop-blur-md text-neutral-800 dark:text-neutral-100 px-3 py-1.5 rounded-xl shadow-md border border-neutral-200/80 dark:border-neutral-700/80 flex items-center gap-1.5 z-10">
-              <MapPin className="w-4 h-4 text-sky-500" />
-              <span className="text-sm font-bold">{locationName}</span>
+            <div className="absolute top-2.5 left-2.5 bg-white/90 dark:bg-neutral-900/90 backdrop-blur-md text-neutral-800 dark:text-neutral-100 px-2.5 py-1 rounded-full shadow-sm border border-black/5 dark:border-white/10 flex items-center gap-1.5 z-10">
+              <div className="w-2 h-2 rounded-full bg-sky-500 animate-pulse" />
+              <span className="text-xs font-semibold tracking-tight">{locationName}</span>
             </div>
           )}
         </div>
