@@ -51,7 +51,11 @@ func (o OAuthHandler) GetRedirectUrl(c echo.Context) error {
 	o.base.db.First(&sysConfig)
 	_ = json.Unmarshal([]byte(sysConfig.Content), &sysConfigVO)
 
-	origin := c.Scheme() + "://" + c.Request().Host
+	origin := sysConfigVO.OAuthServerUrl
+	if origin == "" {
+		origin = c.Scheme() + "://" + c.Request().Host
+	}
+	origin = strings.TrimSuffix(origin, "/")
 	callbackUrl := fmt.Sprintf("%s/oauth/callback/%s", origin, provider)
 	state := fmt.Sprintf("moments_%d", time.Now().Unix())
 
@@ -65,7 +69,7 @@ func (o OAuthHandler) GetRedirectUrl(c echo.Context) error {
 	case "github":
 		clientId := sysConfigVO.GithubClientId
 		if clientId == "" {
-			clientId = "Ov23liMomentsDefault"
+			return FailRespWithMsg(c, Fail, "未在后台【系统设置】中配置 GitHub Client ID")
 		}
 		redirectUrl = fmt.Sprintf("https://github.com/login/oauth/authorize?client_id=%s&redirect_uri=%s&scope=user:email&state=%s",
 			clientId, url.QueryEscape(callbackUrl), state)
@@ -73,7 +77,7 @@ func (o OAuthHandler) GetRedirectUrl(c echo.Context) error {
 	case "google":
 		clientId := sysConfigVO.GoogleClientId
 		if clientId == "" {
-			clientId = "1083928172-moments-default.apps.googleusercontent.com"
+			return FailRespWithMsg(c, Fail, "未在后台【系统设置】中配置 Google Client ID")
 		}
 		redirectUrl = fmt.Sprintf("https://accounts.google.com/o/oauth2/v2/auth?client_id=%s&redirect_uri=%s&response_type=code&scope=openid%%20profile%%20email&state=%s",
 			clientId, url.QueryEscape(callbackUrl), state)
@@ -81,7 +85,7 @@ func (o OAuthHandler) GetRedirectUrl(c echo.Context) error {
 	case "qq":
 		appId := sysConfigVO.QqAppId
 		if appId == "" {
-			appId = "102030405"
+			return FailRespWithMsg(c, Fail, "未在后台【系统设置】中配置 QQ App ID")
 		}
 		redirectUrl = fmt.Sprintf("https://graph.qq.com/oauth2.0/authorize?response_type=code&client_id=%s&redirect_uri=%s&state=%s",
 			appId, url.QueryEscape(callbackUrl), state)
@@ -89,7 +93,7 @@ func (o OAuthHandler) GetRedirectUrl(c echo.Context) error {
 	case "wechat":
 		appId := sysConfigVO.WechatAppId
 		if appId == "" {
-			appId = "wx8888888888888888"
+			return FailRespWithMsg(c, Fail, "未在后台【系统设置】中配置微信 App ID")
 		}
 		redirectUrl = fmt.Sprintf("https://open.weixin.qq.com/connect/qrconnect?appid=%s&redirect_uri=%s&response_type=code&scope=snsapi_login&state=%s#wechat_redirect",
 			appId, url.QueryEscape(callbackUrl), state)
@@ -97,7 +101,7 @@ func (o OAuthHandler) GetRedirectUrl(c echo.Context) error {
 	case "douyin":
 		clientKey := sysConfigVO.DouyinClientKey
 		if clientKey == "" {
-			clientKey = "awmomentsdefaultkey"
+			return FailRespWithMsg(c, Fail, "未在后台【系统设置】中配置抖音 Client Key")
 		}
 		redirectUrl = fmt.Sprintf("https://open.douyin.com/platform/oauth/connect?client_key=%s&response_type=code&scope=user_info&redirect_uri=%s&state=%s",
 			clientKey, url.QueryEscape(callbackUrl), state)
@@ -105,7 +109,7 @@ func (o OAuthHandler) GetRedirectUrl(c echo.Context) error {
 	case "bilibili":
 		clientId := sysConfigVO.BilibiliClientId
 		if clientId == "" {
-			clientId = "moments_bilibili_default_id"
+			return FailRespWithMsg(c, Fail, "未在后台【系统设置】中配置 Bilibili Client ID")
 		}
 		redirectUrl = fmt.Sprintf("https://passport.bilibili.com/api/v2/oauth2/authorize?client_id=%s&response_type=code&redirect_uri=%s&state=%s",
 			clientId, url.QueryEscape(callbackUrl), state)
@@ -144,7 +148,11 @@ func (o OAuthHandler) HandleCallback(c echo.Context) error {
 	o.base.db.First(&sysConfig)
 	_ = json.Unmarshal([]byte(sysConfig.Content), &sysConfigVO)
 
-	origin := c.Scheme() + "://" + c.Request().Host
+	origin := sysConfigVO.OAuthServerUrl
+	if origin == "" {
+		origin = c.Scheme() + "://" + c.Request().Host
+	}
+	origin = strings.TrimSuffix(origin, "/")
 	callbackUrl := fmt.Sprintf("%s/oauth/callback/%s", origin, provider)
 
 	profile, err := o.fetchUserProfile(provider, req.Code, callbackUrl, sysConfigVO)

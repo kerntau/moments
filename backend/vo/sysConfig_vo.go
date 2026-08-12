@@ -30,6 +30,7 @@ type SysConfigVO struct {
 	EnableAmap             bool   `json:"enableAmap"`                 //是否启用高德地图
 	AmapKey                string `json:"amapKey,omitempty"`          //高德地图Key
 	AmapSecurityJsCode     string `json:"amapSecurityJsCode,omitempty"`//高德地图安全密钥
+	AmapStyle              string `json:"amapStyle,omitempty"`         //高德地图样式主题
 	EnableOAuth            bool   `json:"enableOAuth"`               //是否启用第三方OAuth登录
 	EnableGithubOAuth      bool   `json:"enableGithubOAuth"`          //是否启用GitHub登录
 	EnableGoogleOAuth      bool   `json:"enableGoogleOAuth"`          //是否启用Google登录
@@ -37,6 +38,7 @@ type SysConfigVO struct {
 	EnableWechatOAuth      bool   `json:"enableWechatOAuth"`          //是否启用微信登录
 	EnableDouyinOAuth      bool   `json:"enableDouyinOAuth"`          //是否启用抖音登录
 	EnableBilibiliOAuth    bool   `json:"enableBilibiliOAuth"`        //是否启用Bilibili登录
+	OAuthServerUrl         string `json:"oauthServerUrl,omitempty"`   //自定义 OAuth 回调基准域名
 	Version                string `json:"version,omitempty"`
 	CommitId               string `json:"commitId,omitempty"`
 	S3                     S3VO   `json:"s3"` //S3相关信息
@@ -59,6 +61,7 @@ type FullSysConfigVO struct {
 	EnableAmap             bool   `json:"enableAmap"`                 //是否启用高德地图
 	AmapKey                string `json:"amapKey,omitempty"`          //高德地图Key
 	AmapSecurityJsCode     string `json:"amapSecurityJsCode,omitempty"`//高德地图安全密钥
+	AmapStyle              string `json:"amapStyle,omitempty"`         //高德地图样式主题
 	EnableComment          bool   `json:"enableComment"`              //是否启用评论
 	MaxCommentLength       int    `json:"maxCommentLength,omitempty"` //发言最大长度
 	MemoMaxHeight          int    `json:"memoMaxHeight,omitempty"`    //单个memo的最大高度,单位px
@@ -72,6 +75,7 @@ type FullSysConfigVO struct {
 	SmtpPassword           string `json:"smtpPassword,omitempty"`     //smtp password
 	// 第三方 OAuth 配置
 	EnableOAuth            bool   `json:"enableOAuth"`
+	OAuthServerUrl         string `json:"oauthServerUrl,omitempty"`   //自定义 OAuth 回调基准域名
 	EnableGithubOAuth      bool   `json:"enableGithubOAuth"`
 	GithubClientId         string `json:"githubClientId,omitempty"`
 	GithubClientSecret     string `json:"githubClientSecret,omitempty"`
