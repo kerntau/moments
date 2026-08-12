@@ -27,7 +27,8 @@ export const Header: React.FC<HeaderProps> = ({ user, onAddFriend }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const params = useParams();
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, resolvedTheme } = useTheme();
+  const isDark = (theme || resolvedTheme) === 'dark';
 
   const userinfo = useGlobalStore((state) => state.userinfo);
   const setUserinfo = useGlobalStore((state) => state.setUserinfo);
@@ -54,14 +55,7 @@ export const Header: React.FC<HeaderProps> = ({ user, onAddFriend }) => {
   };
 
   const toggleMode = () => {
-    if (theme === 'system') {
-      setTheme('dark');
-    } else if (theme === 'dark') {
-      setTheme('light');
-    } else {
-      setTheme('system');
-      toast.success('显示模式将跟随系统设置');
-    }
+    setTheme(isDark ? 'light' : 'dark');
   };
 
   return (
@@ -86,8 +80,7 @@ export const Header: React.FC<HeaderProps> = ({ user, onAddFriend }) => {
               path !== '/friend' && (
                 <span>
                   {!userinfo.token && path === '/user/login' && '登录'}
-                  {!userinfo.token && path === '/user/reg' && '注册'}
-                  {(userinfo.token || (path !== '/user/login' && path !== '/user/reg')) &&
+                  {(userinfo.token || path !== '/user/login') &&
                     `${user.nickname || ''} 的空间`}
                 </span>
               )}
@@ -107,47 +100,44 @@ export const Header: React.FC<HeaderProps> = ({ user, onAddFriend }) => {
 
       {/* 桌面端右侧固定工具按钮 */}
       <div className="hidden sm:flex sm:absolute sm:-right-10 sm:top-0 sm:rounded sm:p-2 sm:flex-col sm:w-fit sm:shadow bg-white dark:bg-neutral-800 gap-2 z-20">
-        {theme === 'dark' ? (
-          <Sun
-            className="w-5 h-5 cursor-pointer text-yellow-400"
-            onClick={toggleMode}
-          />
-        ) : (
-          <MoonStar
-            className="w-5 h-5 cursor-pointer text-yellow-400"
-            onClick={toggleMode}
-          />
-        )}
+        <span title={isDark ? '切换亮色模式' : '切换暗色模式'}>
+          {isDark ? (
+            <Sun
+              className="w-5 h-5 cursor-pointer text-yellow-400"
+              onClick={toggleMode}
+            />
+          ) : (
+            <MoonStar
+              className="w-5 h-5 cursor-pointer text-yellow-400"
+              onClick={toggleMode}
+            />
+          )}
+        </span>
 
-        {userinfo.token && (
-          <Link to="/new" title="发表">
-            <Camera className="text-[#9fc84a] w-5 h-5 cursor-pointer" />
-          </Link>
-        )}
-        {path !== '/user/calendar' && userinfo.token && (
-          <Link to="/user/calendar" title="日历检索">
-            <Search className="text-[#9fc84a] w-5 h-5 cursor-pointer" />
-          </Link>
-        )}
-        {path === '/' && (
-          <Link to="/friend" title="友情链接">
-            <Users className="text-[#9fc84a] w-5 h-5 cursor-pointer" />
-          </Link>
-        )}
-        {path !== '/sys/settings' && userinfo.id === 1 && (
-          <Link to="/sys/settings" title="系统设置">
-            <Settings className="text-[#9fc84a] w-5 h-5 cursor-pointer" />
-          </Link>
-        )}
-        {path !== '/user/settings' && userinfo.token && (
-          <Link to="/user/settings" title="用户中心">
-            <User className="text-[#9fc84a] w-5 h-5 cursor-pointer" />
-          </Link>
-        )}
-        {!userinfo.token && (
-          <Link to="/user/login" title="登录">
-            <LogIn className="text-[#9fc84a] w-5 h-5 cursor-pointer" />
-          </Link>
+        {userinfo.token ? (
+          <>
+            <Link to="/new" title="发表">
+              <Camera className="text-sky-500 w-5 h-5 cursor-pointer" />
+            </Link>
+            <span title="检索" onClick={() => navigate('/user/calendar')}>
+              <Search className="text-sky-500 w-5 h-5 cursor-pointer" />
+            </span>
+            <span title="友链" onClick={() => navigate('/friend')}>
+              <Users className="text-sky-500 w-5 h-5 cursor-pointer" />
+            </span>
+            {userinfo.id === 1 && (
+              <span title="系统设置" onClick={() => navigate('/sys/settings')}>
+                <Settings className="text-sky-500 w-5 h-5 cursor-pointer" />
+              </span>
+            )}
+            <span title="个人设置" onClick={() => navigate('/user/settings')}>
+              <User className="text-sky-500 w-5 h-5 cursor-pointer" />
+            </span>
+          </>
+        ) : (
+          <span title="登录" onClick={() => navigate('/user/login')}>
+            <LogIn className="text-sky-500 w-5 h-5 cursor-pointer" />
+          </span>
         )}
       </div>
 
@@ -168,7 +158,7 @@ export const Header: React.FC<HeaderProps> = ({ user, onAddFriend }) => {
             <img
               src={user.avatarUrl || '/avatar.webp'}
               style={{ width: '70px', height: '70px' }}
-              className="avatar rounded-xl object-cover border-2 border-white dark:border-neutral-800 shadow-md"
+              className="avatar rounded-full object-cover shadow-md"
               alt="avatar"
             />
           </div>
