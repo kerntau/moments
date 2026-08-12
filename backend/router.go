@@ -52,6 +52,9 @@ func setupRouter(injector do.Injector) {
 	tagGroup := apiGroup.Group("/tag")
 	tagGroup.POST("/list", tagHandler.List)
 
+	locationGroup := apiGroup.Group("/location")
+	locationGroup.POST("/list", memoHandler.ListLocations)
+
 	fileGroup := apiGroup.Group("/file")
 	fileGroup.POST("/exist", fileHandler.Exist)
 	fileGroup.POST("/upload", fileHandler.Upload)
@@ -68,6 +71,15 @@ func setupRouter(injector do.Injector) {
 
 	rssGroup := e.Group("/rss")
 	rssGroup.GET("", rssHandler.GetRss)
+
+	oauthHandler := handler.NewOAuthHandler(injector)
+	oauthGroup := apiGroup.Group("/oauth")
+	oauthGroup.POST("/:provider/redirect", oauthHandler.GetRedirectUrl)
+	oauthGroup.GET("/:provider/redirect", oauthHandler.GetRedirectUrl)
+	oauthGroup.POST("/:provider/callback", oauthHandler.HandleCallback)
+	oauthGroup.POST("/bound", oauthHandler.GetBoundOAuthList)
+	oauthGroup.GET("/bound", oauthHandler.GetBoundOAuthList)
+	oauthGroup.POST("/unbind", oauthHandler.UnbindOAuth)
 
 	friendHandler := handler.NewFriendHandler(injector)
 	friendGroup := apiGroup.Group("/friend")

@@ -139,6 +139,9 @@ func (m MemoHandler) ListMemos(c echo.Context) error {
 	if req.ContentContains != "" {
 		tx = tx.Where("content like ?", "%"+req.ContentContains+"%")
 	}
+	if req.Location != "" {
+		tx = tx.Where("location = ?", req.Location)
+	}
 	if req.ShowType != nil && *req.ShowType >= 0 {
 		tx = tx.Where("showType=?", req.ShowType)
 	}
@@ -835,4 +838,39 @@ func (m MemoHandler) GetDoubanBookInfo(c echo.Context) error {
 		book.Image = image
 	}
 	return SuccessResp(c, book)
+}
+
+type locationStat struct {
+	Location string `json:"location"`
+	Count    int    `json:"count"`
+}
+type locationListResp struct {
+	Locations []locationStat `json:"locations"`
+}
+
+// ListLocations godoc
+//
+//	@Tags		Memo
+//	@Summary	获取用户的地点足迹统计
+//	@Accept		json
+//	@Produce	json
+//	@Param		x-api-token	header		string	true	"登录TOKEN"
+//	@Success	200			{object}	locationListResp
+//	@Router		/api/location/list [post]
+func (m MemoHandler) ListLocations(c echo.Context) error {
+	ctx := c.(CustomContext)
+	currentUser := ctx.CurrentUser()
+
+	var stats []locationStat
+	// 聚合查询用户的地点分布
+	m.base.db.Table("Memo").
+		Select("location, count(*) as count").
+		Where("userId = ? AND location != ''", currentUser.Id).
+		Group("location").
+		Order("count DESC").
+		Find(&stats)
+
+	return SuccessResp(c, locationListResp{
+		Locations: stats,
+	})
 }

@@ -13,6 +13,7 @@ type ListMemoReq struct {
 	ContentContains string     `json:"contentContains,omitempty"` //内容包含
 	ShowType        *int       `json:"showType,omitempty"`        //是否是公开的,1:公开,0:私有
 	UserId          *int       `json:"userId,omitempty"`          //用户id
+	Location        string     `json:"location,omitempty"`        //地理位置
 }
 
 type Music struct {
