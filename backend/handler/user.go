@@ -2,6 +2,10 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -165,6 +169,21 @@ func (u UserHandler) Profile(c echo.Context) error {
 	return SuccessResp(c, currentUser)
 }
 
+func removeOldUploadFile(uploadDir string, oldUrl string) {
+	if oldUrl == "" || !strings.HasPrefix(oldUrl, "/upload/") {
+		return
+	}
+	filename := strings.TrimPrefix(oldUrl, "/upload/")
+	filePath := filepath.Join(uploadDir, filename)
+	_ = os.Remove(filePath)
+
+	// 删除可能存在的缩略图
+	ext := filepath.Ext(filename)
+	filenameWithoutExt := strings.TrimSuffix(filename, ext)
+	thumbFilePath := filepath.Join(uploadDir, fmt.Sprintf("%s_thumb%s", filenameWithoutExt, ext))
+	_ = os.Remove(thumbFilePath)
+}
+
 // SaveProfile godoc
 //
 //	@Tags		User
@@ -197,6 +216,16 @@ func (u UserHandler) SaveProfile(c echo.Context) error {
 		}
 		user.Password = string(password)
 	}
+
+	// 当更新头像且与旧头像不同时，自动删除磁盘上的旧文件
+	if user.AvatarUrl != req.AvatarUrl && user.AvatarUrl != "" {
+		removeOldUploadFile(u.base.cfg.UploadDir, user.AvatarUrl)
+	}
+	// 当更新封面且与旧封面不同时，自动删除磁盘上的旧文件
+	if user.CoverUrl != req.CoverUrl && user.CoverUrl != "" {
+		removeOldUploadFile(u.base.cfg.UploadDir, user.CoverUrl)
+	}
+
 	user.Nickname = req.Nickname
 	user.AvatarUrl = req.AvatarUrl
 	user.Slogan = req.Slogan

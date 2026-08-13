@@ -45,7 +45,7 @@ export const LoginPage: React.FC = () => {
     <>
       {currentUser && <Header user={currentUser} />}
       <div className="pb-20">
-        <div className="w-4/5 mx-auto mt-20 p-6 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-xl space-y-6">
+        <div className="w-[85%] max-w-[420px] mx-auto mt-12 sm:mt-16 p-6 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-xl space-y-6">
           <p className="text-center text-2xl font-bold text-neutral-800 dark:text-neutral-100">登录</p>
           <form className="space-y-4" onSubmit={doLogin}>
             <div>

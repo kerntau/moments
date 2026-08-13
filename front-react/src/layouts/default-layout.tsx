@@ -45,13 +45,28 @@ export const DefaultLayout: React.FC<DefaultLayoutProps> = ({ children }) => {
             document.title = sysConfig.title;
           }
           if (sysConfig.favicon) {
-            let link: HTMLLinkElement | null = document.querySelector("link[rel*='icon']");
-            if (!link) {
-              link = document.createElement('link');
-              link.rel = 'shortcut icon';
-              document.head.appendChild(link);
+            // 移除已有所有的 icon 节点，防止浏览器因为节点未重新构建而不刷新 Favicon
+            const existingLinks = document.querySelectorAll("link[rel*='icon']");
+            existingLinks.forEach((el) => el.parentNode?.removeChild(el));
+
+            const link = document.createElement('link');
+            link.rel = 'icon';
+
+            const lowerUrl = sysConfig.favicon.toLowerCase();
+            if (lowerUrl.endsWith('.ico')) {
+              link.type = 'image/x-icon';
+            } else if (lowerUrl.endsWith('.png')) {
+              link.type = 'image/png';
+            } else if (lowerUrl.endsWith('.svg')) {
+              link.type = 'image/svg+xml';
+            } else if (lowerUrl.endsWith('.jpg') || lowerUrl.endsWith('.jpeg')) {
+              link.type = 'image/jpeg';
+            } else if (lowerUrl.endsWith('.gif')) {
+              link.type = 'image/gif';
             }
+
             link.href = sysConfig.favicon;
+            document.head.appendChild(link);
           }
 
           // 注入自定义 CSS
