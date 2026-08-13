@@ -11,7 +11,7 @@ GIT_CLONE_DEPTH="${GIT_CLONE_DEPTH:-1}"
 GIT_CLONE_FILTER="${GIT_CLONE_FILTER:-blob:none}"
 GIT_HTTP_VERSION="${GIT_HTTP_VERSION:-HTTP/1.1}"
 GIT_HTTP_LOW_SPEED_TIME="${GIT_HTTP_LOW_SPEED_TIME:-300}"
-CLEAN_PROJECT_FILES="${CLEAN_PROJECT_FILES:-false}"
+CLEAN_PROJECT_FILES="${CLEAN_PROJECT_FILES:-true}"
 INTERACTIVE_MODE="${INTERACTIVE_MODE:-auto}"
 AUTO_OPEN_PORTS="${AUTO_OPEN_PORTS:-ask}"
 LOG_LEVEL="${LOG_LEVEL:-INFO}"
@@ -683,9 +683,9 @@ adopt_env_files() {
 
 ensure_app_ownership() {
   if [ -d "$TARGET_DIR" ]; then
-    run_root chown -R "$APP_USER:$APP_GROUP" "$TARGET_DIR" 2>/dev/null || run_root chown -R "$APP_UID:$APP_GID" "$TARGET_DIR" || true
+    run_root chown -R "$APP_USER:$APP_GROUP" "$TARGET_DIR" >/dev/null 2>&1 || run_root chown -R "$APP_UID:$APP_GID" "$TARGET_DIR" >/dev/null 2>&1 || true
     if [ -d "$TARGET_DIR/.git" ]; then
-      run_root chmod -R u+w "$TARGET_DIR/.git" 2>/dev/null || true
+      run_root chmod -R u+w "$TARGET_DIR/.git" >/dev/null 2>&1 || true
     fi
   fi
 }
@@ -892,8 +892,8 @@ prepare_repository() {
     ensure_app_ownership
     cleanup_existing_repository
     run_quiet "同步远程分支" git -C "$TARGET_DIR" fetch origin "$BRANCH"
-    run_quiet "切换到部署分支" git -C "$TARGET_DIR" checkout "$BRANCH"
-    run_quiet "快进更新项目代码" git -C "$TARGET_DIR" pull --ff-only origin "$BRANCH"
+    run_quiet "切换到部署分支" git -C "$TARGET_DIR" checkout -f "$BRANCH"
+    run_quiet "重置并覆盖更新代码" git -C "$TARGET_DIR" reset --hard "origin/$BRANCH"
     return
   fi
   if [ -f "$TARGET_DIR/backend/go.mod" ] && [ -d "$TARGET_DIR/front-react" ]; then
