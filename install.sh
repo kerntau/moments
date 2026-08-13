@@ -358,8 +358,9 @@ go_ready() {
 }
 
 pnpm_ready() {
-  command -v pnpm >/dev/null 2>&1
+  command -v pnpm >/dev/null 2>&1 && pnpm --version >/dev/null 2>&1
 }
+
 
 # ─────────────────────────────────────────────────────────────
 # .env 文件操作
@@ -805,16 +806,27 @@ install_go() {
 
 install_pnpm() {
   log "准备 pnpm"
+  local node_major target_pnpm_spec="pnpm@latest"
+  node_major="$(version_major "$(node --version 2>/dev/null || echo 0)")"
+
+  if [ "$node_major" -lt 22 ]; then
+    log "当前 Node.js 版本（v${node_major}）低于 v22，自动切换为 Node 20 兼容的 ${target_pnpm_spec:=pnpm@9}"
+    target_pnpm_spec="pnpm@9"
+  fi
+
   if command -v corepack >/dev/null 2>&1; then
     run_quiet "启用 Corepack" run_root corepack enable || true
-    run_quiet "准备 pnpm" corepack prepare pnpm@latest --activate || true
+    run_quiet "准备 ${target_pnpm_spec}" corepack prepare "$target_pnpm_spec" --activate || true
   fi
+
   if ! pnpm_ready; then
-    run_quiet "安装 pnpm" run_root npm install --global pnpm
+    run_quiet "安装 ${target_pnpm_spec}" run_root npm install --global "$target_pnpm_spec"
   fi
-  pnpm_ready || fail "pnpm 安装失败"
+
+  pnpm_ready || fail "pnpm (${target_pnpm_spec}) 安装或激活失败，请检查 Node.js 环境"
   log "pnpm：$(pnpm --version)"
 }
+
 
 # ─────────────────────────────────────────────────────────────
 # 仓库管理
