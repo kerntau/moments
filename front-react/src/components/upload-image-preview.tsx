@@ -30,7 +30,7 @@ export const UploadImagePreview: React.FC<UploadImagePreviewProps> = ({
     location.pathname.startsWith('/new') || location.pathname.startsWith('/edit');
 
   const imagesList = useMemo<ImgConfig[]>(() => {
-    return imgs
+    return (imgs || '')
       .split(',')
       .filter(Boolean)
       .map((url, i) => ({
@@ -41,10 +41,10 @@ export const UploadImagePreview: React.FC<UploadImagePreviewProps> = ({
   }, [imgs]);
 
   const configsList = useMemo<ImgConfig[]>(() => {
-    return imgConfigs.map((config, i) => ({
-      id: `${config.url}-${i}`,
-      url: config.url,
-      thumbUrl: config.thumbUrl || config.url,
+    return (imgConfigs || []).map((config, i) => ({
+      id: `${config?.url || ''}-${i}`,
+      url: config?.url || '',
+      thumbUrl: config?.thumbUrl || config?.url || '',
     }));
   }, [imgConfigs]);
 

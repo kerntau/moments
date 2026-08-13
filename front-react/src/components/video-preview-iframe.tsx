@@ -21,9 +21,10 @@ export const VideoPreviewIframe: React.FC<VideoPreviewIframeProps> = ({ url }) =
   return (
     <iframe
       src={videoUrl}
-      className="w-full h-[250px] rounded border-0"
+      className="w-full aspect-video rounded border-0 shadow-sm"
       title="Video player iframe"
       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-presentation"
       referrerPolicy="strict-origin-when-cross-origin"
       allowFullScreen
     />

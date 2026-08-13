@@ -10,6 +10,7 @@ import (
 	"net/url"
 	"os"
 	"path"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -192,6 +193,36 @@ func (m MemoHandler) ListMemos(c echo.Context) error {
 	})
 }
 
+func cleanUnusedMemoFiles(uploadDir string, oldImgsStr string, newImgsStr string) {
+	oldImgs := strings.Split(oldImgsStr, ",")
+	newImgs := strings.Split(newImgsStr, ",")
+	newMap := make(map[string]bool)
+	for _, img := range newImgs {
+		img = strings.TrimSpace(img)
+		if img != "" {
+			newMap[img] = true
+		}
+	}
+
+	for _, oldImg := range oldImgs {
+		oldImg = strings.TrimSpace(oldImg)
+		if oldImg == "" || !strings.HasPrefix(oldImg, "/upload/") {
+			continue
+		}
+		// 如果旧图片在新的关联列表中不存在，自动擦除本地磁盘文件及缩略图
+		if !newMap[oldImg] {
+			filename := strings.TrimPrefix(oldImg, "/upload/")
+			filePath := filepath.Join(uploadDir, filename)
+			_ = os.Remove(filePath)
+
+			ext := filepath.Ext(filename)
+			filenameWithoutExt := strings.TrimSuffix(filename, ext)
+			thumbFilePath := filepath.Join(uploadDir, fmt.Sprintf("%s_thumb%s", filenameWithoutExt, ext))
+			_ = os.Remove(thumbFilePath)
+		}
+	}
+}
+
 // RemoveMemo godoc
 //
 //	@Tags		Memo
@@ -219,6 +250,10 @@ func (m MemoHandler) RemoveMemo(c echo.Context) error {
 	if currentUser.Id != memo.UserId && currentUser.Id != 1 {
 		return FailRespWithMsg(c, Fail, "没有权限")
 	}
+
+	// 自动物理擦除关联的上传图片及缩略图
+	cleanUnusedMemoFiles(m.base.cfg.UploadDir, memo.Imgs, "")
+
 	if m.base.db.Delete(&memo).RowsAffected != 1 {
 		return FailRespWithMsg(c, Fail, "删除失败")
 	}
@@ -338,6 +373,9 @@ func (m MemoHandler) SaveMemo(c echo.Context) error {
 		if memo.UserId != currentUser.Id {
 			return FailResp(c, ParamError)
 		}
+		// 自动擦除在当前编辑中被删除或替换的旧物理图片
+		cleanUnusedMemoFiles(m.base.cfg.UploadDir, memo.Imgs, strings.Join(req.Imgs, ","))
+
 		memo.UpdatedAt = &now
 	} else {
 		memo.CreatedAt = &now

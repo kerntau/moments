@@ -62,12 +62,16 @@ export const Header: React.FC<HeaderProps> = ({ user, onAddFriend }) => {
     <div className="header relative">
       {path !== '/' && !path.includes('/memo/') && (
         <div
-          className={`flex fixed justify-between items-center p-4 w-full md:w-[567px] text-white top-0 z-30 transition-colors duration-200 ${
-            scrollY > 100 ? 'bg-[#4c4c4c]/80' : ''
+          className={`flex fixed justify-between items-center px-4 py-3.5 w-full md:w-[567px] top-0 z-30 transition-all duration-300 backdrop-blur-md border-b ${
+            scrollY > 20
+              ? 'bg-white/85 dark:bg-neutral-900/85 border-neutral-200/80 dark:border-neutral-800/80 shadow-sm text-neutral-900 dark:text-neutral-100'
+              : 'bg-white/70 dark:bg-neutral-900/70 border-neutral-200/40 dark:border-neutral-800/40 text-neutral-800 dark:text-neutral-200'
           }`}
         >
-          <div className="flex items-center cursor-pointer" onClick={() => navigate('/')} title="返回主页">
-            <ChevronLeft className="w-5 h-5 mr-4" />
+          <div className="flex items-center gap-1.5 cursor-pointer font-bold text-sm tracking-tight" onClick={() => navigate('/')} title="返回主页">
+            <div className="p-1 rounded-full hover:bg-neutral-200/60 dark:hover:bg-neutral-800/60 transition">
+              <ChevronLeft className="w-5 h-5 text-neutral-700 dark:text-neutral-200" />
+            </div>
             {path === '/user/calendar' && <span>日历检索</span>}
             {path === '/sys/settings' && <span>系统设置</span>}
             {path.includes('/tags/') && <span>{params.tag || '话题专栏'}</span>}
@@ -84,13 +88,13 @@ export const Header: React.FC<HeaderProps> = ({ user, onAddFriend }) => {
               )}
           </div>
           {path === '/sys/settings' && userinfo.token && (
-            <div className="hidden sm:flex" title="登出" onClick={logout}>
-              <LogOut className="w-5 h-5 cursor-pointer" />
+            <div className="hidden sm:flex p-1.5 rounded-full hover:bg-neutral-200/60 dark:hover:bg-neutral-800/60 transition text-neutral-600 dark:text-neutral-300" title="登出" onClick={logout}>
+              <LogOut className="w-4 h-4 cursor-pointer" />
             </div>
           )}
           {path === '/friend' && userinfo.id === 1 && (
-            <div className="flex" title="添加友链">
-              <Plus className="w-6 h-6 cursor-pointer" onClick={onAddFriend} />
+            <div className="flex p-1.5 rounded-full hover:bg-neutral-200/60 dark:hover:bg-neutral-800/60 transition text-neutral-700 dark:text-neutral-200" title="添加友链">
+              <Plus className="w-5 h-5 cursor-pointer" onClick={onAddFriend} />
             </div>
           )}
         </div>
