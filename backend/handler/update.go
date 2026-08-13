@@ -86,9 +86,51 @@ func (u *UpdateHandler) getRemoteUrl(projectRoot string) (string, error) {
 	return strings.TrimSpace(string(out)), nil
 }
 
+// findExecutable 智能查找系统二进制文件路径，解决服务器 PATH 环境变量不全导致的命令缺失问题
+func findExecutable(name string) string {
+	if path, err := exec.LookPath(name); err == nil && path != "" {
+		return path
+	}
+	var candidates []string
+	switch name {
+	case "go":
+		candidates = []string{
+			"/usr/local/go/bin/go",
+			"/usr/bin/go",
+			"/usr/local/bin/go",
+		}
+		if goroot := os.Getenv("GOROOT"); goroot != "" {
+			candidates = append(candidates, filepath.Join(goroot, "bin", "go"))
+		}
+		if home, err := os.UserHomeDir(); err == nil && home != "" {
+			candidates = append(candidates, filepath.Join(home, "go", "bin", "go"))
+		}
+	case "pnpm":
+		candidates = []string{
+			"/usr/local/bin/pnpm",
+			"/usr/bin/pnpm",
+		}
+		if home, err := os.UserHomeDir(); err == nil && home != "" {
+			candidates = append(candidates, filepath.Join(home, ".local/share/pnpm/pnpm"), filepath.Join(home, ".nvm/versions/node", "bin", "pnpm"))
+		}
+	case "git":
+		candidates = []string{
+			"/usr/bin/git",
+			"/usr/local/bin/git",
+		}
+	}
+	for _, c := range candidates {
+		if _, err := os.Stat(c); err == nil {
+			return c
+		}
+	}
+	return name
+}
+
 // runCommand 执行命令并收集输出
 func (u *UpdateHandler) runCommand(dir string, name string, args ...string) (string, error) {
-	cmd := exec.Command(name, args...)
+	binPath := findExecutable(name)
+	cmd := exec.Command(binPath, args...)
 	cmd.Dir = dir
 	out, err := cmd.CombinedOutput()
 	output := strings.TrimSpace(string(out))
