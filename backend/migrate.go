@@ -25,19 +25,19 @@ func migrateTo3(tx *gorm.DB, log zerolog.Logger) {
 	if count == 0 {
 		log.Info().Msg("初始化默认配置...")
 		if err := tx.First(&admin).Error; errors.Is(err, gorm.ErrRecordNotFound) {
-			admin.Username = "admin"
+			admin.Username = "kerntau"
 			admin.Password = "$2a$12$Ruw0XIDW3IuHmD3WXsRTnOUt/0sfqgKWP3wbsqx5sGcCuebWa6X.i"
-			admin.Title = "极简朋友圈"
-			admin.Slogan = "修道者，逆天而行，注定要一生孤独。"
-			admin.Nickname = "admin"
+			admin.Title = "COT"
+			admin.Slogan = "心中有景,花香满径"
+			admin.Nickname = "kerntau"
 			admin.EnableS3 = "0"
 			admin.Favicon = "/favicon.png"
 			admin.CoverUrl = "/cover.webp"
 			admin.AvatarUrl = "/avatar.webp"
 			if err := tx.Save(&admin).Error; err != nil {
-				log.Info().Msgf("用户不存在,初始化[admin/a123456]用户... 失败:%s", err)
+				log.Info().Msgf("用户不存在,初始化[kerntau/a123456]用户... 失败:%s", err)
 			} else {
-				log.Info().Msg("用户不存在,初始化[admin/a123456]用户... 成功!")
+				log.Info().Msg("用户不存在,初始化[kerntau/a123456]用户... 成功!")
 			}
 		}
 		item.AdminUserName = admin.Username
@@ -62,7 +62,11 @@ func migrateTo3(tx *gorm.DB, log zerolog.Logger) {
 		}
 		item.EnableGoogleRecaptcha = false
 		item.EnableComment = true
-		item.MaxCommentLength = 120
+		item.EnableRegister = false
+		item.EnableAutoLoadNextPage = false
+		item.EnableAmap = true
+		item.AmapKey = "6cee66ca226c478ae680d8ced57ec169"
+		item.AmapSecurityJsCode = "6b80d61962e13fe0bb99cf72e6dadc47"
 		item.MaxCommentLength = 300
 		item.CommentOrder = "desc"
 		item.TimeFormat = "timeAgo"
