@@ -68,7 +68,6 @@ export type SysConfigVO = {
   rss: string;
   enableAutoLoadNextPage: boolean;
   enableS3: boolean;
-  enableRegister: boolean;
   enableGoogleRecaptcha: boolean;
   googleSiteKey: string;
   googleSecretKey?: string;
@@ -200,5 +199,15 @@ export type UpdateStatus = {
 export type UpdateConfig = {
   repoUrl: string;
   branch: string;
+};
+
+export type CommentLogVO = {
+  id: number;
+  memoId: number;
+  username: string;
+  email: string;
+  ip: string;
+  content: string;
+  createdAt: string;
 };
 

@@ -23,3 +23,17 @@ type Comment struct {
 func (c *Comment) TableName() string {
 	return "Comment"
 }
+
+type CommentLog struct {
+	Id        int32      `gorm:"column:id;primary_key;NOT NULL" json:"id,omitempty"`
+	MemoId    int32      `gorm:"column:memoId;NOT NULL" json:"memoId,omitempty"`
+	Username  string     `gorm:"column:username" json:"username,omitempty"`
+	Email     string     `gorm:"column:email" json:"email,omitempty"`
+	Ip        string     `gorm:"column:ip" json:"ip,omitempty"`
+	Content   string     `gorm:"column:content" json:"content,omitempty"`
+	CreatedAt *time.Time `gorm:"column:createdAt;default:CURRENT_TIMESTAMP;NOT NULL" json:"createdAt,omitempty"`
+}
+
+func (c *CommentLog) TableName() string {
+	return "CommentLog"
+}

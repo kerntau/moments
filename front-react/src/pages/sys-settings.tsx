@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { toast } from 'sonner';
+import dayjs from 'dayjs';
 import {
   Eye, EyeOff, RefreshCw, Download, CheckCircle, XCircle, Loader2, GitBranch, Settings2,
   User, Sliders, Puzzle, Cpu, Shield, Globe, HardDrive, Sparkles, Terminal, Trash2, Save, KeyRound
@@ -30,7 +31,11 @@ const STAGE_LABELS: Record<string, string> = {
   failed: '更新失败',
 };
 
-const SystemUpdateSection: React.FC = () => {
+interface SystemUpdateSectionProps {
+  onOpenSysLog?: () => void;
+}
+
+const SystemUpdateSection: React.FC<SystemUpdateSectionProps> = ({ onOpenSysLog }) => {
   const [checkResult, setCheckResult] = useState<UpdateCheckResult | null>(null);
   const [updateStatus, setUpdateStatus] = useState<UpdateStatus | null>(null);
   const [updateConfig, setUpdateConfig] = useState<UpdateConfig>({ repoUrl: '', branch: '' });
@@ -175,6 +180,7 @@ const SystemUpdateSection: React.FC = () => {
           )}
           {checking ? '正在检测远程仓库...' : '检查版本更新'}
         </Button>
+
         <div className="flex items-center gap-2">
           {updateStatus && updateStatus.stage !== 'idle' && (
             <button
@@ -189,7 +195,7 @@ const SystemUpdateSection: React.FC = () => {
           <button
             type="button"
             onClick={() => { setShowConfig(!showConfig); if (!showConfig) loadConfig(); }}
-            className="p-1.5 rounded-lg text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200 hover:bg-neutral-200/50 dark:hover:bg-neutral-700/50 transition cursor-pointer"
+            className="p-2 rounded-lg text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200 hover:bg-neutral-200/50 dark:hover:bg-neutral-700/50 transition cursor-pointer relative z-10"
             title="仓库与更新配置"
           >
             <Settings2 className="w-4 h-4" />
@@ -243,11 +249,10 @@ const SystemUpdateSection: React.FC = () => {
 
       {/* 检查结果 */}
       {checkResult && (
-        <div className={`p-3.5 rounded-xl border transition-all ${
-          checkResult.hasUpdate
+        <div className={`p-3.5 rounded-xl border transition-all ${checkResult.hasUpdate
             ? 'border-amber-500/40 bg-amber-500/5'
             : 'border-neutral-200/80 dark:border-neutral-700/70 bg-neutral-50/50 dark:bg-neutral-900/50'
-        }`}>
+          }`}>
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               {checkResult.hasUpdate ? (
@@ -312,13 +317,12 @@ const SystemUpdateSection: React.FC = () => {
 
       {/* 更新进度 */}
       {updateStatus && updateStatus.stage !== 'idle' && (
-        <div className={`p-3.5 rounded-xl border transition-all ${
-          updateStatus.stage === 'failed'
+        <div className={`p-3.5 rounded-xl border transition-all ${updateStatus.stage === 'failed'
             ? 'border-red-300/80 dark:border-red-600/70 bg-red-50/70 dark:bg-red-950/30'
             : updateStatus.stage === 'done'
               ? 'border-emerald-300/80 dark:border-emerald-600/70 bg-emerald-50/70 dark:bg-emerald-950/30'
               : 'border-sky-300/80 dark:border-sky-600/70 bg-sky-50/70 dark:bg-sky-950/30'
-        }`}>
+          }`}>
           <div className="flex items-center gap-2 mb-1.5">
             {stageIcon(updateStatus.stage)}
             <span className="text-xs font-bold text-neutral-800 dark:text-neutral-200">
@@ -404,6 +408,8 @@ export const SysSettingsPage: React.FC = () => {
   const [commitId, setCommitId] = useState('');
   const [showAmapKey, setShowAmapKey] = useState(false);
   const [showAmapSecurityCode, setShowAmapSecurityCode] = useState(false);
+  const [showSysLogDialog, setShowSysLogDialog] = useState(false);
+
 
   // 管理员个人 Profile 表达状态
   const [profileState, setProfileState] = useState({
@@ -422,7 +428,6 @@ export const SysSettingsPage: React.FC = () => {
     googleSecretKey: '',
     enableAutoLoadNextPage: false,
     enableComment: true,
-    enableRegister: false,
     maxCommentLength: 300,
     memoMaxHeight: 300,
     commentOrder: 'desc',

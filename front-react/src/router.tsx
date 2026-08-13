@@ -5,12 +5,8 @@ import { HomePage } from '@/pages/home';
 import { NewMemoPage } from '@/pages/new';
 import { EditMemoPage } from '@/pages/edit';
 import { MemoDetailPage } from '@/pages/memo-detail';
-import { FriendPage } from '@/pages/friend';
 import { LoginPage } from '@/pages/login';
-import { RegisterPage } from '@/pages/register';
-import { UserSettingsPage } from '@/pages/user-settings';
 import { UserCalendarPage } from '@/pages/user-calendar';
-import { UserProfilePage } from '@/pages/user-profile';
 import { SysSettingsPage } from '@/pages/sys-settings';
 import { TagsPage } from '@/pages/tags';
 import { LocationPage } from '@/pages/location';
@@ -50,14 +46,6 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: '/friend',
-    element: (
-      <DefaultLayout>
-        <FriendPage />
-      </DefaultLayout>
-    ),
-  },
-  {
     path: '/user/login',
     element: (
       <DefaultLayout>
@@ -65,35 +53,12 @@ const router = createBrowserRouter([
       </DefaultLayout>
     ),
   },
-  {
-    path: '/user/reg',
-    element: (
-      <DefaultLayout>
-        <RegisterPage />
-      </DefaultLayout>
-    ),
-  },
-  {
-    path: '/user/settings',
-    element: (
-      <DefaultLayout>
-        <SysSettingsPage />
-      </DefaultLayout>
-    ),
-  },
+
   {
     path: '/user/calendar',
     element: (
       <DefaultLayout>
         <UserCalendarPage />
-      </DefaultLayout>
-    ),
-  },
-  {
-    path: '/user/:id',
-    element: (
-      <DefaultLayout>
-        <UserProfilePage />
       </DefaultLayout>
     ),
   },

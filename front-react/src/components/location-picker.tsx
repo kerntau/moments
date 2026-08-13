@@ -141,12 +141,11 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
       loadAmapSDK(amapKey, amapSecurityCode)
         .then((AMap) => {
           if (!amapInstanceRef.current) {
-            const isDark = document.documentElement.classList.contains('dark');
-            const mapStyle = isDark ? 'amap://styles/dark' : 'amap://styles/fresh';
+            const mapStyle = 'amap://styles/normal';
 
             const map = new AMap.Map(mapContainerRef.current, {
               center: [coords.lng, coords.lat],
-              zoom: 15,
+              zoom: 15.5,
               mapStyle: mapStyle,
               viewMode: '2D',
             });
@@ -154,10 +153,9 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
             const markerContent = document.createElement('div');
             markerContent.innerHTML = `
               <div style="position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                <div style="position: absolute; bottom: 0px; width: 14px; height: 4px; background: rgba(0,0,0,0.2); border-radius: 50%; filter: blur(1.5px);"></div>
-                <div style="position: absolute; width: 26px; height: 26px; background: rgba(14, 165, 233, 0.25); border-radius: 50%; animation: map-pulse 2s infinite ease-out;"></div>
-                <div style="position: relative; width: 20px; height: 20px; background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%); border: 2px solid #ffffff; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); box-shadow: 0 4px 10px rgba(2, 132, 199, 0.4); display: flex; align-items: center; justify-content: center; margin-bottom: 6px;">
-                  <div style="width: 5px; height: 5px; background: #ffffff; border-radius: 50%; transform: rotate(45deg);"></div>
+                <div style="position: absolute; bottom: -2px; width: 10px; height: 3px; background: rgba(0,0,0,0.25); border-radius: 50%; filter: blur(1px);"></div>
+                <div style="position: relative; width: 15px; height: 15px; background: #0284c7; border: 2px solid #ffffff; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); box-shadow: 0 2px 5px rgba(0,0,0,0.25); display: flex; align-items: center; justify-content: center;">
+                  <div style="width: 4px; height: 4px; background: #ffffff; border-radius: 50%;"></div>
                 </div>
               </div>
             `;
@@ -166,7 +164,7 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
               position: [coords.lng, coords.lat],
               map: map,
               content: markerContent,
-              offset: new AMap.Pixel(-10, -20),
+              offset: new AMap.Pixel(-7.5, -15),
             });
             amapInstanceRef.current = map;
             markerInstanceRef.current = marker;

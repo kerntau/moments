@@ -1,8 +1,9 @@
-@import "tailwindcss";
 @import "https://cdn.jsdelivr.net/npm/misans@4.0.0/lib/misans-400.css";
 @import "https://cdn.jsdelivr.net/npm/misans@4.0.0/lib/misans-500.css";
 @import "https://cdn.jsdelivr.net/npm/misans@4.0.0/lib/misans-600.css";
 @import "https://cdn.jsdelivr.net/npm/misans@4.0.0/lib/misans-700.css";
+@import "tailwindcss";
+
 
 @variant dark (&:where(.dark, .dark *));
 

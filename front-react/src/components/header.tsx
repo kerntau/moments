@@ -14,9 +14,12 @@ import {
   LogIn,
   Sun,
   MoonStar,
+  Terminal,
 } from 'lucide-react';
 import type { UserVO } from '@/types';
 import { useGlobalStore } from '@/store';
+import { SystemLogDialog } from './system-log-dialog';
+
 
 interface HeaderProps {
   user: UserVO;
@@ -32,6 +35,7 @@ export const Header: React.FC<HeaderProps> = ({ user, onAddFriend }) => {
 
   const userinfo = useGlobalStore((state) => state.userinfo);
   const setUserinfo = useGlobalStore((state) => state.setUserinfo);
+  const setSysLogDialogOpen = useGlobalStore((state) => state.setSysLogDialogOpen);
 
   const [scrollY, setScrollY] = useState(0);
 
@@ -60,26 +64,20 @@ export const Header: React.FC<HeaderProps> = ({ user, onAddFriend }) => {
 
   return (
     <div className="header relative">
-      {path !== '/' && !path.includes('/memo/') && (
-        <div
-          className={`flex fixed justify-between items-center px-4 py-3.5 w-full md:w-[567px] top-0 z-30 transition-all duration-300 backdrop-blur-md border-b ${
-            scrollY > 20
-              ? 'bg-white/85 dark:bg-neutral-900/85 border-neutral-200/80 dark:border-neutral-800/80 shadow-sm text-neutral-900 dark:text-neutral-100'
-              : 'bg-white/70 dark:bg-neutral-900/70 border-neutral-200/40 dark:border-neutral-800/40 text-neutral-800 dark:text-neutral-200'
-          }`}
-        >
+      {path !== '/' && (
+        <div className="flex absolute justify-between items-center px-4 py-3.5 w-full top-0 z-30 text-white drop-shadow-[0_1.5px_3px_rgba(0,0,0,0.85)]">
           <div className="flex items-center gap-1.5 cursor-pointer font-bold text-sm tracking-tight" onClick={() => navigate('/')} title="返回主页">
-            <div className="p-1 rounded-full hover:bg-neutral-200/60 dark:hover:bg-neutral-800/60 transition">
-              <ChevronLeft className="w-5 h-5 text-neutral-700 dark:text-neutral-200" />
+            <div className="p-1 rounded-full hover:bg-black/20 transition">
+              <ChevronLeft className="w-5 h-5 text-white" />
             </div>
+            {path.includes('/memo/') && <span>详情</span>}
             {path === '/user/calendar' && <span>日历检索</span>}
             {path === '/sys/settings' && <span>系统设置</span>}
             {path.includes('/tags/') && <span>{params.tag || '话题专栏'}</span>}
-            {path === '/friend' && <span>友情链接</span>}
             {path !== '/user/calendar' &&
               path !== '/sys/settings' &&
               !path.includes('/tags/') &&
-              path !== '/friend' && (
+              !path.includes('/memo/') && (
                 <span>
                   {!userinfo.token && path === '/user/login' && '登录'}
                   {(userinfo.token || path !== '/user/login') &&
@@ -88,13 +86,8 @@ export const Header: React.FC<HeaderProps> = ({ user, onAddFriend }) => {
               )}
           </div>
           {path === '/sys/settings' && userinfo.token && (
-            <div className="hidden sm:flex p-1.5 rounded-full hover:bg-neutral-200/60 dark:hover:bg-neutral-800/60 transition text-neutral-600 dark:text-neutral-300" title="登出" onClick={logout}>
+            <div className="hidden sm:flex p-1.5 rounded-full hover:bg-black/20 transition text-white" title="登出" onClick={logout}>
               <LogOut className="w-4 h-4 cursor-pointer" />
-            </div>
-          )}
-          {path === '/friend' && userinfo.id === 1 && (
-            <div className="flex p-1.5 rounded-full hover:bg-neutral-200/60 dark:hover:bg-neutral-800/60 transition text-neutral-700 dark:text-neutral-200" title="添加友链">
-              <Plus className="w-5 h-5 cursor-pointer" onClick={onAddFriend} />
             </div>
           )}
         </div>
@@ -130,6 +123,11 @@ export const Header: React.FC<HeaderProps> = ({ user, onAddFriend }) => {
             <span title="系统设置" onClick={() => navigate('/sys/settings')}>
               <Settings className="text-sky-500 w-5 h-5 cursor-pointer" />
             </span>
+            {userinfo.id === 1 && (
+              <span title="系统日志" onClick={() => setSysLogDialogOpen(true)}>
+                <Terminal className="text-sky-500 w-5 h-5 cursor-pointer" />
+              </span>
+            )}
           </>
         ) : (
           <span title="登录" onClick={() => navigate('/user/login')}>
@@ -146,13 +144,13 @@ export const Header: React.FC<HeaderProps> = ({ user, onAddFriend }) => {
           alt="cover"
         />
 
-        {/* 昵称：位于封面图右下角 */}
-        <div className="absolute right-[92px] sm:right-[104px] bottom-3.5 font-semibold text-white drop-shadow-[0_1.5px_3px_rgba(0,0,0,0.85)] text-[16px] sm:text-[17px] select-none">
+        {/* 昵称：位于封面图右下角，向下紧贴封面图底部 */}
+        <div className="absolute right-[88px] sm:right-[98px] bottom-2 sm:bottom-2.5 font-bold text-white text-base sm:text-lg tracking-wide select-none drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)]">
           {user.nickname}
         </div>
 
-        {/* 头像：跨越封面图底部界线 */}
-        <div className="absolute right-3.5 sm:right-4 -bottom-8 w-[68px] h-[68px] sm:w-[76px] sm:h-[76px] rounded-[10px] overflow-hidden border-2 border-white dark:border-neutral-800 bg-white dark:bg-neutral-800 shadow-md flex-shrink-0 z-10">
+        {/* 头像：无边框、适中圆角，自然跨越封面图底部 */}
+        <div className="absolute right-4 sm:right-5 -bottom-6 w-[62px] h-[62px] sm:w-[68px] sm:h-[68px] rounded-xl overflow-hidden shadow-sm flex-shrink-0 z-10">
           <img
             src={user.avatarUrl || '/avatar.webp'}
             className="w-full h-full object-cover"
@@ -161,8 +159,8 @@ export const Header: React.FC<HeaderProps> = ({ user, onAddFriend }) => {
         </div>
       </div>
 
-      {/* 头像下方的签名 / slogan 区域（亮色白底，暗色暗底） */}
-      <div className="pt-9 pb-3 px-4 flex justify-end min-h-[48px]">
+      {/* 头像下方的签名 / slogan 区域 */}
+      <div className="pt-7 pb-2.5 px-4 flex justify-end min-h-[40px]">
         {user.slogan && (
           <div className="text-neutral-500 dark:text-neutral-400 text-xs sm:text-[13px] font-normal text-right max-w-[260px] sm:max-w-xs break-words">
             {user.slogan}

@@ -153,12 +153,11 @@ export const LocationPage: React.FC = () => {
                 const loc = result.geocodes[0].location;
                 setCoords({ lat: loc.lat, lng: loc.lng });
                 if (mapContainerRef.current) {
-                  const isDark = document.documentElement.classList.contains('dark');
-                  const mapStyle = isDark ? 'amap://styles/dark' : 'amap://styles/fresh';
+                  const mapStyle = 'amap://styles/normal';
 
                   const map = new AMap.Map(mapContainerRef.current, {
                     center: [loc.lng, loc.lat],
-                    zoom: 14.5,
+                    zoom: 15.5,
                     mapStyle: mapStyle,
                     viewMode: '2D',
                   });
@@ -166,10 +165,9 @@ export const LocationPage: React.FC = () => {
                   const markerContent = document.createElement('div');
                   markerContent.innerHTML = `
                     <div style="position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                      <div style="position: absolute; bottom: 0px; width: 14px; height: 4px; background: rgba(0,0,0,0.2); border-radius: 50%; filter: blur(1.5px);"></div>
-                      <div style="position: absolute; width: 26px; height: 26px; background: rgba(14, 165, 233, 0.25); border-radius: 50%; animation: map-pulse 2s infinite ease-out;"></div>
-                      <div style="position: relative; width: 20px; height: 20px; background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%); border: 2px solid #ffffff; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); box-shadow: 0 4px 10px rgba(2, 132, 199, 0.4); display: flex; align-items: center; justify-content: center; margin-bottom: 6px;">
-                        <div style="width: 5px; height: 5px; background: #ffffff; border-radius: 50%; transform: rotate(45deg);"></div>
+                      <div style="position: absolute; bottom: -2px; width: 10px; height: 3px; background: rgba(0,0,0,0.25); border-radius: 50%; filter: blur(1px);"></div>
+                      <div style="position: relative; width: 15px; height: 15px; background: #0284c7; border: 2px solid #ffffff; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); box-shadow: 0 2px 5px rgba(0,0,0,0.25); display: flex; align-items: center; justify-content: center;">
+                        <div style="width: 4px; height: 4px; background: #ffffff; border-radius: 50%;"></div>
                       </div>
                     </div>
                   `;
@@ -178,7 +176,7 @@ export const LocationPage: React.FC = () => {
                     position: [loc.lng, loc.lat],
                     map: map,
                     content: markerContent,
-                    offset: new AMap.Pixel(-10, -20),
+                    offset: new AMap.Pixel(-7.5, -15),
                   });
                   amapInstanceRef.current = map;
                 }
@@ -223,9 +221,9 @@ export const LocationPage: React.FC = () => {
           )}
           
           {amapKey && (
-            <div className="absolute top-2.5 left-2.5 bg-white/90 dark:bg-neutral-900/90 backdrop-blur-md text-neutral-800 dark:text-neutral-100 px-2.5 py-1 rounded-full shadow-sm border border-black/5 dark:border-white/10 flex items-center gap-1.5 z-10">
-              <div className="w-2 h-2 rounded-full bg-sky-500 animate-pulse" />
-              <span className="text-xs font-semibold tracking-tight">{locationName}</span>
+            <div className="absolute top-2 left-2 bg-white/90 dark:bg-neutral-900/90 backdrop-blur-md text-neutral-800 dark:text-neutral-100 px-2 py-0.5 rounded-md shadow-xs border border-black/5 dark:border-white/10 flex items-center gap-1.5 z-10 max-w-[85%]">
+              <div className="w-1.5 h-1.5 rounded-full bg-sky-500 flex-shrink-0" />
+              <span className="text-[11px] font-medium tracking-tight truncate">{locationName}</span>
             </div>
           )}
         </div>

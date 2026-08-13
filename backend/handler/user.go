@@ -1,12 +1,10 @@
 package handler
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/kingwrcy/moments/db"
@@ -70,67 +68,6 @@ func (u UserHandler) Login(c echo.Context) error {
 		Username: user.Username,
 		Id:       user.Id,
 	})
-}
-
-// Reg godoc
-//
-//	@Tags		User
-//	@Summary	用户注册
-//	@Accept		json
-//	@Produce	json
-//	@Param		object	body	vo.RegReq	true	"用户注册"
-//	@Success	200
-//	@Router		/api/user/reg [post]
-func (u UserHandler) Reg(c echo.Context) error {
-	var (
-		req         vo.RegReq
-		count       int64
-		user        db.User
-		now         = time.Now()
-		sysConfig   db.SysConfig
-		sysConfigVO vo.FullSysConfigVO
-	)
-
-	u.base.db.First(&sysConfig)
-	_ = json.Unmarshal([]byte(sysConfig.Content), &sysConfigVO)
-
-	if !sysConfigVO.EnableRegister {
-		return FailRespWithMsg(c, Fail, "当前未开启注册用户")
-	}
-
-	err := c.Bind(&req)
-	if err != nil {
-		return FailResp(c, ParamError)
-	}
-
-	if len(req.Username) < 3 {
-		return FailRespWithMsg(c, Fail, "用户名最少3个字符")
-	}
-	if req.Password != req.RepeatPassword {
-		return FailRespWithMsg(c, Fail, "两次密码不一致")
-	}
-	u.base.db.Table("User").Where("username = ?", req.Username).Count(&count)
-	if count > 0 {
-		return FailRespWithMsg(c, Fail, "用户名已存在")
-	}
-	user.Username = req.Username
-	pwd, err := bcrypt.GenerateFromPassword([]byte(req.Password), 10)
-	if err != nil {
-		u.base.log.Error().Msgf("密码加密异常:%s", err)
-		return FailRespWithMsg(c, Fail, "密码加密异常")
-	}
-	user.Password = string(pwd)
-	user.CreatedAt = &now
-	user.UpdatedAt = &now
-	user.Nickname = req.Username
-	user.AvatarUrl = "/avatar.webp"
-	user.Slogan = "修道者，逆天而行，注定要一生孤独。"
-	user.CoverUrl = "/cover.webp"
-	if err := u.base.db.Save(&user).Error; err != nil {
-		u.base.log.Error().Msgf("注册用户异常:%s", err)
-		return FailRespWithMsg(c, Fail, "注册用户异常")
-	}
-	return SuccessResp(c, h{})
 }
 
 // ProfileForUser godoc

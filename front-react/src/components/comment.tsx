@@ -90,17 +90,16 @@ export const Comment: React.FC<CommentProps> = ({ comment, memoId, memoUserId })
           {comment.content}
         </span>
 
-        <span className="text-xs text-neutral-400 ml-2 hidden sm:inline-block">
-          {dayjs(comment.createdAt).fromNow()}
-        </span>
-
-        {(userinfo.id === memoUserId || userinfo.id === 1) && (
-          <span className="text-xs text-neutral-400 ml-2 inline-flex items-center">
+        <span className="inline-flex items-center gap-1.5 align-middle text-xs text-neutral-400 ml-2">
+          <span>{dayjs(comment.createdAt).fromNow()}</span>
+          {(userinfo.id === memoUserId || userinfo.id === 1) && (
             <Confirm onOk={removeComment}>
-              <Trash2 className="w-3.5 h-3.5 cursor-pointer text-red-400 hover:text-red-600 transition" />
+              <span className="inline-flex items-center justify-center p-0.5 cursor-pointer text-red-400 hover:text-red-600 transition leading-none">
+                <Trash2 className="w-3.5 h-3.5" />
+              </span>
             </Confirm>
-          </span>
-        )}
+          )}
+        </span>
       </div>
 
       <CommentBox

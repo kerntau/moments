@@ -62,7 +62,6 @@ func migrateTo3(tx *gorm.DB, log zerolog.Logger) {
 		}
 		item.EnableGoogleRecaptcha = false
 		item.EnableComment = true
-		item.EnableRegister = false
 		item.EnableAutoLoadNextPage = false
 		item.EnableAmap = true
 		item.AmapKey = "6cee66ca226c478ae680d8ced57ec169"

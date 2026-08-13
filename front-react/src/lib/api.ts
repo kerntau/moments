@@ -31,7 +31,6 @@ export const useMyFetch = async <T>(url: string, data?: any): Promise<T> => {
 
     if (res.code === 3 || res.code === 4) {
       useGlobalStore.getState().setUserinfo({});
-      window.location.href = '/user/login';
       throw new Error(res.message || '未授权登录');
     }
 

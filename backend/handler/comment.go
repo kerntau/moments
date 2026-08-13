@@ -202,6 +202,23 @@ func (c CommentHandler) AddComment(ctx echo.Context) error {
 	comment.MemoId = req.MemoID
 
 	if err = c.base.db.Save(&comment).Error; err == nil {
+		clientIP := ctx.RealIP()
+		if clientIP == "" {
+			clientIP = ctx.Request().RemoteAddr
+		}
+		c.base.log.Info().Msgf("\x1b[1;32m[朋友圈评论成功]\x1b[0m \x1b[1;36m动态ID:\x1b[0m %d | \x1b[1;33m评论者昵称:\x1b[0m %s | \x1b[1;35mQQ/邮箱:\x1b[0m %s | \x1b[1;34m客户端IP:\x1b[0m %s | \x1b[1;37m评论内容:\x1b[0m %s", comment.MemoId, comment.Username, comment.Email, clientIP, comment.Content)
+
+		// 存入评论日志数据库
+		commentLog := db.CommentLog{
+			MemoId:    comment.MemoId,
+			Username:  comment.Username,
+			Email:     comment.Email,
+			Ip:        clientIP,
+			Content:   comment.Content,
+			CreatedAt: &now,
+		}
+		c.base.db.Save(&commentLog)
+
 		go func() {
 			frontendHost := fmt.Sprintf("%s://%s", ctx.Scheme(), ctx.Request().Host)
 			if err = c.commentEmailNotification(comment, frontendHost); err != nil {
@@ -211,6 +228,21 @@ func (c CommentHandler) AddComment(ctx echo.Context) error {
 		return SuccessResp(ctx, h{})
 	}
 	return FailRespWithMsg(ctx, Fail, "发表评论失败")
+}
+
+func (c CommentHandler) CommentLogList(ctx echo.Context) error {
+	var logs []db.CommentLog
+	if err := c.base.db.Order("createdAt desc").Limit(100).Find(&logs).Error; err != nil {
+		return FailRespWithMsg(ctx, Fail, "获取评论日志失败")
+	}
+	return SuccessResp(ctx, logs)
+}
+
+func (c CommentHandler) ClearCommentLog(ctx echo.Context) error {
+	if err := c.base.db.Exec("DELETE FROM CommentLog").Error; err != nil {
+		return FailRespWithMsg(ctx, Fail, "清空日志失败")
+	}
+	return SuccessResp(ctx, h{})
 }
 
 func (c CommentHandler) commentEmailNotification(comment db.Comment, host string) error {

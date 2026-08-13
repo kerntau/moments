@@ -205,27 +205,7 @@ export const Memo: React.FC<MemoProps> = ({ memo }) => {
 
   return (
     <div>
-      {/* 详情页专用 Header Bar */}
-      {location.pathname === `/memo/${memo.id}` && (
-        <div className="header relative mb-14">
-          <div
-            className={`flex fixed justify-between items-center p-4 w-full md:w-[567px] text-white top-0 z-30 transition-colors ${
-              scrollY > 100 ? 'bg-[#4c4c4c]/80' : ''
-            }`}
-          >
-            <div className="flex items-center cursor-pointer" onClick={() => navigate('/')} title="返回主页">
-              <ChevronLeft className="w-5 h-5 mr-4" />
-              <span className="font-semibold text-base">详情</span>
-            </div>
-            {(userinfo.id === 1 || userinfo.id === memo.userId) && (
-              <MoreHorizontal
-                className="w-5 h-5 cursor-pointer hover:opacity-80"
-                onClick={() => setMoreToolbar(true)}
-              />
-            )}
-          </div>
-        </div>
-      )}
+
 
       <div
         className={`relative flex gap-3 sm:gap-3.5 text-sm p-3 sm:p-4 dark:bg-neutral-800 border-b border-black/[0.06] dark:border-white/[0.08] ${
@@ -233,20 +213,16 @@ export const Memo: React.FC<MemoProps> = ({ memo }) => {
         }`}
       >
         <div className="avatar flex-shrink-0 pt-[1px]">
-          <Link to={`/user/${memo.user.id}`}>
-            <img
-              src={memo.user.avatarUrl}
-              alt="Avatar"
-              className="w-[42px] h-[42px] rounded-[6px] object-cover"
-            />
-          </Link>
+          <img
+            src={memo.user.avatarUrl}
+            alt="Avatar"
+            className="w-[42px] h-[42px] rounded-[6px] object-cover"
+          />
         </div>
 
         <div className="flex flex-col flex-1 min-w-0">
           <div className="username text-[#576b95] dark:text-[#7d90b8] mb-0.5 font-semibold text-[15px] leading-snug flex justify-between items-center select-none">
-            <Link to={`/user/${memo.user.id}`} className="hover:opacity-80">
-              {memo.user.nickname}
-            </Link>
+            <span>{memo.user.nickname}</span>
             <div className="flex items-center">
               {memo.pinned && <Pin className="w-4 h-4 text-amber-500" />}
               {memo.showType === 0 && <Lock className="w-4 h-4 text-red-500 ml-2 dark:text-neutral-300" />}
@@ -337,7 +313,7 @@ export const Memo: React.FC<MemoProps> = ({ memo }) => {
 
             <div
               onClick={() => setShowToolbar(!showToolbar)}
-              className="toolbar-icon px-2 py-0.5 bg-[#f7f7f7] dark:bg-neutral-800 hover:bg-[#dedede] dark:hover:bg-neutral-700 cursor-pointer rounded flex items-center justify-center transition"
+              className="toolbar-icon px-2 py-0.5 bg-[#f7f7f7] dark:bg-neutral-800 hover:bg-[#dedede] dark:hover:bg-neutral-700 cursor-pointer rounded flex items-center justify-center transition relative z-10 select-none"
             >
               <span className="text-[#576b95] font-bold tracking-widest text-xs">••</span>
             </div>

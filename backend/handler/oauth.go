@@ -14,7 +14,6 @@ import (
 	"github.com/kingwrcy/moments/vo"
 	"github.com/labstack/echo/v4"
 	"github.com/samber/do/v2"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type OAuthHandler struct {
@@ -189,49 +188,13 @@ func (o OAuthHandler) HandleCallback(c echo.Context) error {
 			// 当前属于已登录状态 -> 直接为当前用户绑定
 			targetUser = *currentUser
 		} else {
-			// 当前未登录状态 -> 判断系统是否允许注册新用户
-			if !sysConfigVO.EnableRegister {
-				// 检查系统总用户数，如果只有1个用户(管理员)，且管理员未绑定，则可自动关联管理员
-				var count int64
-				o.base.db.Model(&db.User{}).Count(&count)
-				if count == 1 {
-					o.base.db.First(&targetUser, 1)
-				} else {
-					return FailRespWithMsg(c, Fail, "系统未开放新用户注册，请先使用密码登录后在设置中绑定")
-				}
+			// 当前未登录状态：检查系统总用户数，如果只有1个用户(管理员)，且未绑定，则可自动关联管理员，否则提示绑定
+			var count int64
+			o.base.db.Model(&db.User{}).Count(&count)
+			if count == 1 {
+				o.base.db.First(&targetUser, 1)
 			} else {
-				// 自动创建新 User 账号
-				username := fmt.Sprintf("%s_%s", provider, profile.OpenId[:min(8, len(profile.OpenId))])
-				var existCount int64
-				o.base.db.Model(&db.User{}).Where("username = ?", username).Count(&existCount)
-				if existCount > 0 {
-					username = fmt.Sprintf("%s_%d", username, time.Now().Unix()%1000)
-				}
-
-				nickname := profile.Nickname
-				if nickname == "" {
-					nickname = username
-				}
-				avatarUrl := profile.AvatarUrl
-				if avatarUrl == "" {
-					avatarUrl = "/avatar.webp"
-				}
-
-				pwd, _ := bcrypt.GenerateFromPassword([]byte(fmt.Sprintf("oauth_%d", time.Now().UnixNano())), 10)
-
-				targetUser = db.User{
-					Username:  username,
-					Nickname:  nickname,
-					Password:  string(pwd),
-					AvatarUrl: avatarUrl,
-					Slogan:    "使用 " + provider + " 快捷登录接入",
-					CoverUrl:  "/cover.webp" ,
-					CreatedAt: &now,
-					UpdatedAt: &now,
-				}
-				if err := o.base.db.Save(&targetUser).Error; err != nil {
-					return FailRespWithMsg(c, Fail, "第三方快捷注册失败")
-				}
+				return FailRespWithMsg(c, Fail, "系统未绑定该第三方账号，请先使用密码登录后在设置中绑定")
 			}
 		}
 
@@ -635,9 +598,3 @@ func (o OAuthHandler) fetchUserProfile(provider, code, redirectUrl string, cfg v
 	return nil, fmt.Errorf("不支持的授权提供商")
 }
 
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}

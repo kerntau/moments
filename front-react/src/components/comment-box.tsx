@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import { User, Smile } from 'lucide-react';
 import { Emoji } from '@/components/emoji';
@@ -35,9 +35,10 @@ export const CommentBox: React.FC<CommentBoxProps> = ({
   const [formState, setFormState] = useState({
     content: '',
     username: '',
-    website: '',
-    email: '',
+    qq: '',
   });
+
+  const boxRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     try {
@@ -47,14 +48,32 @@ export const CommentBox: React.FC<CommentBoxProps> = ({
         setFormState((prev) => ({
           ...prev,
           username: parsed.username || '',
-          website: parsed.website || '',
-          email: parsed.email || '',
+          qq: parsed.qq || parsed.email || '',
         }));
       }
     } catch (e) {
       // ignore error
     }
   }, []);
+
+  useEffect(() => {
+    if (currentCommentBox !== pid) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (boxRef.current && !boxRef.current.contains(event.target as Node)) {
+        setCurrentCommentBox('');
+      }
+    };
+
+    const timer = setTimeout(() => {
+      document.addEventListener('mousedown', handleClickOutside);
+    }, 50);
+
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [currentCommentBox, pid, setCurrentCommentBox]);
 
   if (currentCommentBox !== pid) return null;
 
@@ -64,8 +83,7 @@ export const CommentBox: React.FC<CommentBoxProps> = ({
         'localCommentUserinfo',
         JSON.stringify({
           username: formState.username,
-          website: formState.website,
-          email: formState.email,
+          qq: formState.qq,
         })
       );
     }
@@ -75,6 +93,11 @@ export const CommentBox: React.FC<CommentBoxProps> = ({
       return;
     }
 
+    let formattedEmail = formState.qq.trim();
+    if (formattedEmail && !formattedEmail.includes('@')) {
+      formattedEmail = `${formattedEmail}@qq.com`;
+    }
+
     try {
       await useMyFetch('/comment/add', {
         memoId,
@@ -82,8 +105,7 @@ export const CommentBox: React.FC<CommentBoxProps> = ({
         replyEmail,
         content: formState.content,
         username: formState.username,
-        website: formState.website,
-        email: formState.email,
+        email: formattedEmail,
         token,
       });
 
@@ -120,7 +142,7 @@ export const CommentBox: React.FC<CommentBoxProps> = ({
   };
 
   return (
-    <div className="px-4 py-2 flex flex-col gap-2 mt-2 border-t border-neutral-100 dark:border-neutral-800">
+    <div ref={boxRef} className="px-4 py-2 flex flex-col gap-2 mt-2 border-t border-neutral-100 dark:border-neutral-800">
       <div className="relative">
         <textarea
           rows={4}
@@ -150,21 +172,18 @@ export const CommentBox: React.FC<CommentBoxProps> = ({
       {emojiShow && <Emoji onSelected={emojiSelected} />}
 
       {userShow && !userinfo.token && (
-        <div className="flex gap-2 mt-1">
+        <div className="flex gap-2 mt-1.5">
           <Input
-            placeholder="姓名"
+            className="h-8 text-xs rounded bg-white dark:bg-neutral-800 border border-neutral-200/80 dark:border-neutral-700/80 focus-visible:ring-1 focus-visible:ring-sky-500 shadow-2xs"
+            placeholder="昵称"
             value={formState.username}
             onChange={(e) => setFormState({ ...formState, username: e.target.value })}
           />
           <Input
-            placeholder="网站"
-            value={formState.website}
-            onChange={(e) => setFormState({ ...formState, website: e.target.value })}
-          />
-          <Input
-            placeholder="邮箱"
-            value={formState.email}
-            onChange={(e) => setFormState({ ...formState, email: e.target.value })}
+            className="h-8 text-xs rounded bg-white dark:bg-neutral-800 border border-neutral-200/80 dark:border-neutral-700/80 focus-visible:ring-1 focus-visible:ring-sky-500 shadow-2xs"
+            placeholder="QQ号"
+            value={formState.qq}
+            onChange={(e) => setFormState({ ...formState, qq: e.target.value })}
           />
         </div>
       )}

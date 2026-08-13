@@ -24,7 +24,6 @@ func setupRouter(injector do.Injector) {
 
 	userGroup := apiGroup.Group("/user")
 	userGroup.POST("/login", userHandler.Login)
-	userGroup.POST("/reg", userHandler.Reg)
 	userGroup.POST("/profile", userHandler.Profile)
 	userGroup.POST("/profile/:username", userHandler.ProfileForUser)
 	userGroup.POST("/saveProfile", userHandler.SaveProfile)
@@ -43,6 +42,9 @@ func setupRouter(injector do.Injector) {
 	commentGroup := apiGroup.Group("/comment")
 	commentGroup.POST("/add", commentHandler.AddComment)
 	commentGroup.POST("/remove", commentHandler.RemoveComment)
+	commentGroup.GET("/log/list", commentHandler.CommentLogList)
+	commentGroup.POST("/log/list", commentHandler.CommentLogList)
+	commentGroup.POST("/log/clear", commentHandler.ClearCommentLog)
 
 	sycConfigGroup := apiGroup.Group("/sysConfig")
 	sycConfigGroup.POST("/save", sycConfigHandler.SaveConfig)
@@ -84,11 +86,7 @@ func setupRouter(injector do.Injector) {
 	oauthGroup.GET("/bound", oauthHandler.GetBoundOAuthList)
 	oauthGroup.POST("/unbind", oauthHandler.UnbindOAuth)
 
-	friendHandler := handler.NewFriendHandler(injector)
-	friendGroup := apiGroup.Group("/friend")
-	friendGroup.POST("/list", friendHandler.GetFriendList)
-	friendGroup.POST("/add", friendHandler.AddFriend)
-	friendGroup.POST("/delete", friendHandler.DeleteFriend)
+
 
 	updateHandler := handler.NewUpdateHandler(injector)
 	updateGroup := apiGroup.Group("/update")

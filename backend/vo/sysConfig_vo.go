@@ -26,7 +26,6 @@ type SysConfigVO struct {
 	MemoMaxHeight          int    `json:"memoMaxHeight,omitempty"`    //单个memo的最大高度,单位px
 	CommentOrder           string `json:"commentOrder,omitempty"`     //评论展示的顺序,asc:顺序,desc:逆序
 	TimeFormat             string `json:"timeFormat,omitempty"`       //时间格式
-	EnableRegister         bool   `json:"enableRegister"`             //是否开启注册用户
 	EnableAmap             bool   `json:"enableAmap"`                 //是否启用高德地图
 	AmapKey                string `json:"amapKey,omitempty"`          //高德地图Key
 	AmapSecurityJsCode     string `json:"amapSecurityJsCode,omitempty"`//高德地图安全密钥
@@ -67,7 +66,6 @@ type FullSysConfigVO struct {
 	MemoMaxHeight          int    `json:"memoMaxHeight,omitempty"`    //单个memo的最大高度,单位px
 	CommentOrder           string `json:"commentOrder,omitempty"`     //评论展示的顺序,asc:顺序,desc:逆序
 	TimeFormat             string `json:"timeFormat,omitempty"`       //时间格式
-	EnableRegister         bool   `json:"enableRegister"`             //是否开启注册用户
 	EnableEmail            bool   `json:"enableEmail,omitempty"`      //是否启用邮箱
 	SmtpHost               string `json:"smtpHost,omitempty"`         //smtp host
 	SmtpPort               string `json:"smtpPort,omitempty"`         //smtp port

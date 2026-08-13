@@ -44,34 +44,36 @@ export const LoginPage: React.FC = () => {
   return (
     <>
       {currentUser && <Header user={currentUser} />}
-      <div className="pb-20">
-        <div className="w-[85%] max-w-[420px] mx-auto mt-12 sm:mt-16 p-6 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-xl space-y-6">
-          <p className="text-center text-2xl font-bold text-neutral-800 dark:text-neutral-100">登录</p>
-          <form className="space-y-4" onSubmit={doLogin}>
+      <div className="pb-16">
+        <div className="w-[85%] max-w-[330px] sm:max-w-[400px] mx-auto mt-6 sm:mt-14 p-4 sm:p-6 rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-xl space-y-4 sm:space-y-6">
+          <p className="text-center text-lg sm:text-xl font-bold text-neutral-800 dark:text-neutral-100">登录</p>
+          <form className="space-y-3 sm:space-y-4" onSubmit={doLogin}>
             <div>
-              <label className="text-xs font-bold text-neutral-700 dark:text-neutral-300 mb-1 block">用户名</label>
+              <label className="text-[11px] sm:text-xs font-bold text-neutral-700 dark:text-neutral-300 mb-1 block">用户名</label>
               <Input
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="请输入用户名"
+                className="h-9 sm:h-10 text-xs sm:text-sm rounded-lg"
                 required
               />
             </div>
             <div>
-              <label className="text-xs font-bold text-neutral-700 dark:text-neutral-300 mb-1 block">密码</label>
+              <label className="text-[11px] sm:text-xs font-bold text-neutral-700 dark:text-neutral-300 mb-1 block">密码</label>
               <Input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="请输入密码"
+                className="h-9 sm:h-10 text-xs sm:text-sm rounded-lg"
                 required
               />
             </div>
-            <div className="flex gap-2 pt-2">
+            <div className="flex gap-2 pt-1.5 sm:pt-2">
               <Button
                 type="submit"
                 disabled={pending}
-                className="w-full h-10 rounded-lg bg-sky-500 hover:bg-sky-600 text-white font-medium shadow-md shadow-sky-500/20 active:scale-[0.98] transition-all cursor-pointer"
+                className="w-full h-9 sm:h-10 rounded-lg bg-sky-500 hover:bg-sky-600 text-white text-xs sm:text-sm font-medium shadow-sm active:scale-[0.98] transition-all cursor-pointer"
               >
                 {pending ? '登录中...' : '登录'}
               </Button>

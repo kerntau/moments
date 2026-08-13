@@ -17,6 +17,8 @@ interface GlobalState {
   reloadMemos: () => void;
   memoChangedId: number;
   notifyMemoChanged: (id: number) => void;
+  sysLogDialogOpen: boolean;
+  setSysLogDialogOpen: (open: boolean) => void;
 }
 
 export const useGlobalStore = create<GlobalState>()(
@@ -36,6 +38,8 @@ export const useGlobalStore = create<GlobalState>()(
       reloadMemos: () => set((state) => ({ memoReloadTrigger: state.memoReloadTrigger + 1 })),
       memoChangedId: 0,
       notifyMemoChanged: (memoChangedId) => set({ memoChangedId }),
+      sysLogDialogOpen: false,
+      setSysLogDialogOpen: (sysLogDialogOpen) => set({ sysLogDialogOpen }),
     }),
     {
       name: 'global',
@@ -43,3 +47,4 @@ export const useGlobalStore = create<GlobalState>()(
     }
   )
 );
+

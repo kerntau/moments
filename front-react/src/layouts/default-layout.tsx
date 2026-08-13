@@ -134,8 +134,8 @@ export const DefaultLayout: React.FC<DefaultLayoutProps> = ({ children }) => {
         </div>
       )}
 
-        {/* 移动端右下角悬浮展开菜单 */}
-        <MobileNav />
-      </div>
+      {/* 移动端右下角悬浮展开菜单 */}
+      <MobileNav />
+    </div>
   );
 };
