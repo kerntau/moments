@@ -3,6 +3,10 @@ package handler
 import (
 	"encoding/json"
 	"errors"
+	"io"
+	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/kingwrcy/moments/db"
 	"github.com/kingwrcy/moments/vo"
@@ -121,6 +125,16 @@ func (s SysConfigHandler) SaveConfig(c echo.Context) error {
 			return FailRespWithMsg(c, Fail, "保存系统配置异常")
 		}
 	} else {
+		// 自动清理被替换的旧 Favicon 文件
+		var oldConfigVo vo.FullSysConfigVO
+		if config.Content != "" {
+			if err := json.Unmarshal([]byte(config.Content), &oldConfigVo); err == nil {
+				if oldConfigVo.Favicon != "" && oldConfigVo.Favicon != result.Favicon && strings.HasPrefix(oldConfigVo.Favicon, "/upload/") {
+					filename := strings.TrimPrefix(oldConfigVo.Favicon, "/upload/")
+					_ = os.Remove(filepath.Join(s.base.cfg.UploadDir, filename))
+				}
+			}
+		}
 		config.Content = string(data)
 		if err = s.base.db.Updates(&config).Error; err != nil {
 			return FailRespWithMsg(c, Fail, "保存系统配置异常")
@@ -131,5 +145,32 @@ func (s SysConfigHandler) SaveConfig(c echo.Context) error {
 	} else {
 		s.base.db.Table("User").Where("id=? AND (username IS NULL OR username = '')", 1).Update("username", "admin")
 	}
+
+	// 将上传的 Favicon 物理文件直接复制覆盖根配置目录的 favicon.png / favicon.ico
+	if result.Favicon != "" && strings.HasPrefix(result.Favicon, "/upload/") {
+		filename := strings.TrimPrefix(result.Favicon, "/upload/")
+		srcPath := filepath.Join(s.base.cfg.UploadDir, filename)
+		if _, err := os.Stat(srcPath); err == nil {
+			_ = copyFileHelper(srcPath, filepath.Join("public", "favicon.png"))
+			_ = copyFileHelper(srcPath, filepath.Join("public", "favicon.ico"))
+		}
+	}
+
 	return SuccessResp(c, h{})
+}
+
+func copyFileHelper(src, dst string) error {
+	in, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer in.Close()
+	_ = os.MkdirAll(filepath.Dir(dst), 0755)
+	out, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+	_, err = io.Copy(out, in)
+	return err
 }

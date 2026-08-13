@@ -182,3 +182,23 @@ export type Friend = {
   url: string;
   desc: string;
 };
+
+export type UpdateCheckResult = {
+  hasUpdate: boolean;
+  currentCommit: string;
+  latestCommit: string;
+  currentBranch: string;
+  logs: string[];
+};
+
+export type UpdateStatus = {
+  stage: 'idle' | 'starting' | 'pulling' | 'building_frontend' | 'building_backend' | 'replacing' | 'done' | 'failed';
+  message: string;
+  logs: string[];
+};
+
+export type UpdateConfig = {
+  repoUrl: string;
+  branch: string;
+};
+

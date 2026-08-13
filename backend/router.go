@@ -87,6 +87,14 @@ func setupRouter(injector do.Injector) {
 	friendGroup.POST("/add", friendHandler.AddFriend)
 	friendGroup.POST("/delete", friendHandler.DeleteFriend)
 
+	updateHandler := handler.NewUpdateHandler(injector)
+	updateGroup := apiGroup.Group("/update")
+	updateGroup.POST("/check", updateHandler.CheckUpdate)
+	updateGroup.POST("/do", updateHandler.DoUpdate)
+	updateGroup.POST("/status", updateHandler.GetUpdateStatus)
+	updateGroup.POST("/config/get", updateHandler.GetUpdateConfig)
+	updateGroup.POST("/config/save", updateHandler.SaveUpdateConfig)
+
 	if cfg.EnableSwagger {
 		e.GET("/swagger/*", echoSwagger.WrapHandler)
 	}
