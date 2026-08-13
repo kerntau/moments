@@ -509,6 +509,8 @@ export const SysSettingsPage: React.FC = () => {
 
       toast.success('保存成功');
       setSysConfig(sysPayload);
+      localStorage.setItem('sys_config_cache', JSON.stringify(sysPayload));
+
       if (sysPayload.title) {
         document.title = sysPayload.title;
       }

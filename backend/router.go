@@ -72,6 +72,9 @@ func setupRouter(injector do.Injector) {
 	rssGroup := e.Group("/rss")
 	rssGroup.GET("", rssHandler.GetRss)
 
+	e.GET("/favicon.ico", sycConfigHandler.ServeFavicon)
+	e.GET("/favicon.png", sycConfigHandler.ServeFavicon)
+
 	oauthHandler := handler.NewOAuthHandler(injector)
 	oauthGroup := apiGroup.Group("/oauth")
 	oauthGroup.POST("/:provider/redirect", oauthHandler.GetRedirectUrl)

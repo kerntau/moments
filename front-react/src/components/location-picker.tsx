@@ -250,6 +250,38 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
       return;
     }
 
+    const searchOsmPoi = async (query: string): Promise<POIItem[]> => {
+      try {
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+            query
+          )}&accept-language=zh-CN&addressdetails=1&limit=10`
+        );
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) {
+          return data.map((item: any, idx: number) => {
+            const addr = item.address || {};
+            const city = addr.city || addr.town || addr.province || addr.state || addr.country || '';
+            const district = addr.suburb || addr.district || addr.county || '';
+            const mainName = item.name || item.display_name.split(',')[0];
+            const rawLoc = [city, district, mainName].filter(Boolean).join(' ');
+
+            return {
+              id: `osm-${item.place_id || idx}`,
+              name: mainName,
+              address: item.display_name,
+              rawLocation: rawLoc,
+              lat: parseFloat(item.lat),
+              lng: parseFloat(item.lon),
+            };
+          });
+        }
+      } catch (e) {
+        console.error('OpenStreetMap POI 检索失败:', e);
+      }
+      return [];
+    };
+
     const timer = setTimeout(async () => {
       setSearching(true);
       if (amapKey) {
@@ -257,8 +289,8 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
           const AMap = await loadAmapSDK(amapKey, amapSecurityCode);
           AMap.plugin(['AMap.PlaceSearch'], () => {
             const placeSearch = new AMap.PlaceSearch({ pageSize: 20 });
-            placeSearch.search(searchQuery.trim(), (status: string, result: any) => {
-              if (status === 'complete' && result.poiList && result.poiList.pois) {
+            placeSearch.search(searchQuery.trim(), async (status: string, result: any) => {
+              if (status === 'complete' && result.poiList && result.poiList.pois && result.poiList.pois.length > 0) {
                 const pois: POIItem[] = result.poiList.pois.map((poi: any, idx: number) => {
                   const rawLoc = [poi.cityname || poi.pname, poi.adname, poi.name].filter(Boolean).join(' ');
                   return {
@@ -271,51 +303,26 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
                   };
                 });
                 setSearchResults(pois);
+                setSearching(false);
               } else {
-                setSearchResults([]);
+                // 高德仅支持国内/港澳台；对海外搜索或无高德数据时，自动降级切换 OpenStreetMap 全球搜索
+                const osmPois = await searchOsmPoi(searchQuery.trim());
+                setSearchResults(osmPois);
+                setSearching(false);
               }
-              setSearching(false);
             });
           });
         } catch (e) {
           console.error('高德 POI 检索失败:', e);
+          const osmPois = await searchOsmPoi(searchQuery.trim());
+          setSearchResults(osmPois);
           setSearching(false);
         }
       } else {
-        // OpenStreetMap Nominatim 兜底
-        try {
-          const res = await fetch(
-            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-              searchQuery.trim()
-            )}&accept-language=zh-CN&addressdetails=1&limit=8`
-          );
-          const data = await res.json();
-          if (Array.isArray(data) && data.length > 0) {
-            const pois: POIItem[] = data.map((item: any, idx: number) => {
-              const addr = item.address || {};
-              const city = addr.city || addr.town || addr.province || addr.state || '';
-              const district = addr.suburb || addr.district || addr.county || '';
-              const mainName = item.name || item.display_name.split(',')[0];
-              const rawLoc = [city, district, mainName].filter(Boolean).join(' ');
-
-              return {
-                id: `real-${item.place_id || idx}`,
-                name: mainName,
-                address: item.display_name,
-                rawLocation: rawLoc,
-                lat: parseFloat(item.lat),
-                lng: parseFloat(item.lon),
-              };
-            });
-            setSearchResults(pois);
-          } else {
-            setSearchResults([]);
-          }
-        } catch (e) {
-          console.error('真实地图 POI 检索失败:', e);
-        } finally {
-          setSearching(false);
-        }
+        // 无高德 Key 时，直接使用 OpenStreetMap 全球地图检索
+        const osmPois = await searchOsmPoi(searchQuery.trim());
+        setSearchResults(osmPois);
+        setSearching(false);
       }
     }, 400);
 
@@ -324,8 +331,10 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
 
   // GPS 自动定位与逆地理编码
   const handleGetCurrentLocation = () => {
+    const isHttps = window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    
     setLocating(true);
-    toast.info('正在获取当前地理位置...');
+    toast.info(isHttps ? '正在获取当前地理位置...' : '正在尝试定位（移动端建议在 HTTPS 协议下访问）...');
 
     if (amapKey) {
       loadAmapSDK(amapKey, amapSecurityCode)
@@ -357,7 +366,11 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
                   toast.success('已获取定位');
                 }
               } else {
-                toast.error('高德定位失败，请检查网络权限');
+                if (!isHttps) {
+                  toast.error('定位失败：移动端浏览器需在 HTTPS 安全协议下并开启位置访问权限');
+                } else {
+                  toast.error('高德定位失败，请检查浏览器位置访问权限');
+                }
               }
             });
           });

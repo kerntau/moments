@@ -636,16 +636,9 @@ confirm_existing_target() {
   [ -e "$TARGET_DIR" ] || return 0
   [ "$(find "$TARGET_DIR" -mindepth 1 -maxdepth 1 -print -quit 2>/dev/null)" ] && has_files=1
   [ "$has_files" -eq 1 ] || return 0
-  if [ -d "$TARGET_DIR/.git" ] && ! is_cleanup_enabled; then
-    log "将在当前 Git 项目中就地部署，不清理源码：$TARGET_DIR"
-    return 0
-  fi
-  if is_cleanup_enabled; then
-    log_warn "目标目录已存在内容：部署时会清理旧代码和构建缓存，但保留 .env、db.sqlite、upload/ 和 install.sh"
-    ask_yes_no "确认清理目标目录中的旧代码并继续" no || fail "用户取消部署，未修改目标目录"
-  else
-    log_warn "目标目录已存在内容，当前清理策略关闭；如存在旧代码，部署可能失败"
-  fi
+
+  log "【系统重新部署】检测到已存在项目目录：$TARGET_DIR"
+  log "自动保留用户数据（数据库文件、uploads 动态图片与头像素材），默认清除旧编译缓存并替换旧进程服务。"
 }
 
 prepare_interactive_configuration() {
@@ -689,8 +682,11 @@ adopt_env_files() {
 }
 
 ensure_app_ownership() {
-  if [ "$APP_UID" -ne 0 ] && [ -d "$TARGET_DIR" ]; then
-    run_root chown -R "$APP_UID:$APP_GID" "$TARGET_DIR"
+  if [ -d "$TARGET_DIR" ]; then
+    run_root chown -R "$APP_USER:$APP_GROUP" "$TARGET_DIR" 2>/dev/null || run_root chown -R "$APP_UID:$APP_GID" "$TARGET_DIR" || true
+    if [ -d "$TARGET_DIR/.git" ]; then
+      run_root chmod -R u+w "$TARGET_DIR/.git" 2>/dev/null || true
+    fi
   fi
 }
 
@@ -1044,7 +1040,7 @@ SyslogIdentifier=${SERVICE_NAME}
 NoNewPrivileges=true
 ProtectSystem=strict
 ProtectHome=read-only
-ReadWritePaths=${working_dir}
+ReadWritePaths=${TARGET_DIR} ${working_dir}
 PrivateTmp=true
 
 [Install]
@@ -1059,8 +1055,11 @@ start_service() {
   local binary_path="$TARGET_DIR/backend/dist/moments"
   [ -x "$binary_path" ] || [ -f "$binary_path" ] || fail "Go 后端构建产物不存在：$binary_path"
 
+  # 启动服务前，统一纠正目标目录与 .git 的所有权和写权限
+  ensure_app_ownership
+
   if systemctl is-active --quiet "$SERVICE_NAME" 2>/dev/null; then
-    log "检测到旧服务正在运行，重启"
+    log "检测到旧服务正在运行，替换二进制并重启"
     run_quiet "重启服务" run_root systemctl restart "$SERVICE_NAME"
   else
     run_quiet "启动服务" run_root systemctl start "$SERVICE_NAME"

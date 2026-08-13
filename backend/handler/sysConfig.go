@@ -146,7 +146,7 @@ func (s SysConfigHandler) SaveConfig(c echo.Context) error {
 		s.base.db.Table("User").Where("id=? AND (username IS NULL OR username = '')", 1).Update("username", "admin")
 	}
 
-	// 将上传的 Favicon 物理文件直接复制覆盖根配置目录的 favicon.png / favicon.ico
+	// 将上传的 Favicon 物理文件尝试覆盖物理目录
 	if result.Favicon != "" && strings.HasPrefix(result.Favicon, "/upload/") {
 		filename := strings.TrimPrefix(result.Favicon, "/upload/")
 		srcPath := filepath.Join(s.base.cfg.UploadDir, filename)
@@ -157,6 +157,29 @@ func (s SysConfigHandler) SaveConfig(c echo.Context) error {
 	}
 
 	return SuccessResp(c, h{})
+}
+
+// ServeFavicon 拦截并响应全站图标请求
+func (s SysConfigHandler) ServeFavicon(c echo.Context) error {
+	var (
+		config db.SysConfig
+		result vo.SysConfigVO
+	)
+	if err := s.base.db.First(&config).Error; err == nil && config.Content != "" {
+		if err := json.Unmarshal([]byte(config.Content), &result); err == nil && result.Favicon != "" {
+			faviconUrl := result.Favicon
+			if strings.HasPrefix(faviconUrl, "/upload/") {
+				filename := strings.TrimPrefix(faviconUrl, "/upload/")
+				filePath := filepath.Join(s.base.cfg.UploadDir, filename)
+				if _, err := os.Stat(filePath); err == nil {
+					return c.File(filePath)
+				}
+			} else if strings.HasPrefix(faviconUrl, "http://") || strings.HasPrefix(faviconUrl, "https://") {
+				return c.Redirect(302, faviconUrl)
+			}
+		}
+	}
+	return c.NoContent(404)
 }
 
 func copyFileHelper(src, dst string) error {

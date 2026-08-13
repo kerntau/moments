@@ -28,7 +28,69 @@ export const DefaultLayout: React.FC<DefaultLayoutProps> = ({ children }) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const applySysConfigToDom = (config: SysConfigVO) => {
+    if (config.title) {
+      document.title = config.title;
+    }
+    if (config.favicon) {
+      const existingLinks = document.querySelectorAll("link[rel*='icon']");
+      existingLinks.forEach((el) => el.parentNode?.removeChild(el));
+
+      const link = document.createElement('link');
+      link.rel = 'icon';
+
+      const lowerUrl = config.favicon.toLowerCase();
+      if (lowerUrl.endsWith('.ico')) {
+        link.type = 'image/x-icon';
+      } else if (lowerUrl.endsWith('.png')) {
+        link.type = 'image/png';
+      } else if (lowerUrl.endsWith('.svg')) {
+        link.type = 'image/svg+xml';
+      } else if (lowerUrl.endsWith('.jpg') || lowerUrl.endsWith('.jpeg')) {
+        link.type = 'image/jpeg';
+      } else if (lowerUrl.endsWith('.gif')) {
+        link.type = 'image/gif';
+      }
+
+      link.href = config.favicon;
+      document.head.appendChild(link);
+    }
+
+    if (config.css) {
+      let styleEl = document.getElementById('custom-sys-css');
+      if (!styleEl) {
+        styleEl = document.createElement('style');
+        styleEl.id = 'custom-sys-css';
+        document.head.appendChild(styleEl);
+      }
+      styleEl.innerHTML = config.css;
+    }
+
+    // 注入 Google reCAPTCHA 脚本
+    if (config.enableGoogleRecaptcha && config.googleSiteKey) {
+      const scriptId = 'recaptcha-script';
+      if (!document.getElementById(scriptId)) {
+        const script = document.createElement('script');
+        script.id = scriptId;
+        script.src = `https://recaptcha.net/recaptcha/api.js?render=${config.googleSiteKey}`;
+        script.async = true;
+        script.defer = true;
+        document.head.appendChild(script);
+      }
+    }
+  };
+
   useEffect(() => {
+    // 1. 优先读取 localStorage 瞬时缓存，1毫秒内完成标题与 Icon 设定，防止刷新闪烁
+    const cacheStr = localStorage.getItem('sys_config_cache');
+    if (cacheStr) {
+      try {
+        const cachedSysConfig: SysConfigVO = JSON.parse(cacheStr);
+        setSysConfig(cachedSysConfig);
+        applySysConfigToDom(cachedSysConfig);
+      } catch (e) {}
+    }
+
     const initLayoutData = async () => {
       try {
         const [profile, sysConfig] = await Promise.all([
@@ -39,59 +101,8 @@ export const DefaultLayout: React.FC<DefaultLayoutProps> = ({ children }) => {
         if (profile) setCurrentUser(profile);
         if (sysConfig) {
           setSysConfig(sysConfig);
-
-          // 设置页面标题与 Favicon
-          if (sysConfig.title) {
-            document.title = sysConfig.title;
-          }
-          if (sysConfig.favicon) {
-            // 移除已有所有的 icon 节点，防止浏览器因为节点未重新构建而不刷新 Favicon
-            const existingLinks = document.querySelectorAll("link[rel*='icon']");
-            existingLinks.forEach((el) => el.parentNode?.removeChild(el));
-
-            const link = document.createElement('link');
-            link.rel = 'icon';
-
-            const lowerUrl = sysConfig.favicon.toLowerCase();
-            if (lowerUrl.endsWith('.ico')) {
-              link.type = 'image/x-icon';
-            } else if (lowerUrl.endsWith('.png')) {
-              link.type = 'image/png';
-            } else if (lowerUrl.endsWith('.svg')) {
-              link.type = 'image/svg+xml';
-            } else if (lowerUrl.endsWith('.jpg') || lowerUrl.endsWith('.jpeg')) {
-              link.type = 'image/jpeg';
-            } else if (lowerUrl.endsWith('.gif')) {
-              link.type = 'image/gif';
-            }
-
-            link.href = sysConfig.favicon;
-            document.head.appendChild(link);
-          }
-
-          // 注入自定义 CSS
-          if (sysConfig.css) {
-            let styleEl = document.getElementById('custom-sys-css');
-            if (!styleEl) {
-              styleEl = document.createElement('style');
-              styleEl.id = 'custom-sys-css';
-              document.head.appendChild(styleEl);
-            }
-            styleEl.innerHTML = sysConfig.css;
-          }
-
-          // 注入 Google reCAPTCHA 脚本
-          if (sysConfig.enableGoogleRecaptcha && sysConfig.googleSiteKey) {
-            const scriptId = 'recaptcha-script';
-            if (!document.getElementById(scriptId)) {
-              const script = document.createElement('script');
-              script.id = scriptId;
-              script.src = `https://recaptcha.net/recaptcha/api.js?render=${sysConfig.googleSiteKey}`;
-              script.async = true;
-              script.defer = true;
-              document.head.appendChild(script);
-            }
-          }
+          localStorage.setItem('sys_config_cache', JSON.stringify(sysConfig));
+          applySysConfigToDom(sysConfig);
         }
       } catch (err) {
         console.error('初始化页面基础配置失败:', err);

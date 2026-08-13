@@ -1,118 +1,107 @@
 # Moments - 极简朋友圈 (React 19 / Go)
 
-[![release](https://img.shields.io/badge/release-更新记录-blue)](https://github.com/kerntau/moments/releases)
+[![release](https://img.shields.io/badge/release-v0.2.1-blue)](https://gitee.com/kerntau/moments)
+[![license](https://img.shields.io/badge/license-MIT-green)](LICENSE.txt)
 
-> Moments 采用 Golang 作为高性能服务端，前端已升级复刻为 React 19 + Rsbuild 现代化架构！包体积更小，渲染性能更佳！
-
----
-
-## 🌟 技术栈说明
-
-- **后端 (Backend)**：Go 1.23+ / Gin / SQLite / GORM / JWT
-- **前端 (Frontend)**：React 19 + Rsbuild (Rspack) + React Router v7 + Zustand + TailwindCSS v4 + PostCSS + Radix UI (shadcn/ui)
+> **Moments** 是一款采用 Golang (Echo) 作为高性能服务端，前端采用 **React 19 + Rsbuild (Rspack)** 打造的极简朋友圈应用！具备极致的加载速度、媲美原生的交互体验以及极高的轻量化部署优势。
 
 ---
 
-## 📱 功能说明
+## 🌟 核心特性
 
-### 用户系统
+### 📱 朋友圈动态 (Memo)
+- **Markdown 引擎**：支持 Markdown 实时渲染、语法高亮与 `#` 标签快捷插入
+- **丰富媒体支撑**：支持多图拖拽排序、全屏图片灯箱预览、本地视频上传及 Bilibili / YouTube 视频嵌入
+- **卡片扩展**：支持豆瓣图书 / 电影卡片一键检索与 3D 悬浮预览，支持 MetingJS 音乐播放器
+- **互动机制**：支持动态点赞、防重复评论、评论排序及后台评论功能开关
+- **地理位置**：内置**高德地图 JS API** 与 **OpenStreetMap (Nominatim)** 双地图引擎，支持精准定位、周边 POI 检索、国外地点自动降级搜索与自定义位置创建
 
-- **默认管理员**：`admin/a123456`，登录后可在后台修改密码
-- **多用户模式**：可在后台设置是否允许自由注册
-
-### Memo 动态
-
-- 支持使用 **Markdown** 语法编写与实时预览
-- 支持修改发布时间（未来时间对游客隐蔽）
-- 支持标签关联与右键 `#` 标签快捷插入
-- 支持多图拖拽排序 (`sortablejs`) 与全屏图片灯箱预览 (`Fancybox`)
-- 支持本地视频上传与 Bilibili / YouTube 视频内嵌播放
-- 支持外链引用与 MetingJS 音乐播放器
-- 支持豆瓣图书 / 豆瓣电影卡片一键搜索与 3D 悬浮预览
-- 支持点赞、评论防重、评论排序及后台评论功能开关
-
-### 文件存储与清理
-
-- **本地存储**：支持存储至 `$UPLOAD_DIR`，内置 SHA256 秒传机制与图片缩略图自动生成；支持清理无关联垃圾文件至 `$UPLOAD_DIR/removed`。
-- **S3 存储**：兼容 AWS S3、阿里云 OSS、腾讯云 COS 等对象存储服务，支持自动拼接缩略图后缀。
-
-### 其他特性
-
-- **暗黑模式**：内置系统级 Dark / Light 主题切换
-- **日历检索**：支持自定义时间段、关键字、标签、可见性组合检索
-- **友情链接**：支持友链申请、后台审核管理
-- **RSS 订阅与邮件通知**：支持评论/互动邮件通知及标准 RSS 输出
+### ⚙️ 后台与系统服务
+- **数据与文件安全**：自动按日期分目录归档上传，内置 SHA256 秒传机制与图片缩略图自动生成；支持 S3 (AWS/OSS/COS) 对象存储扩展
+- **一键平滑升级**：支持后台直接一键检查并在线同步 Git 仓库更新，编译替换后端二进制并平滑重启服务
+- **数据全量保护**：重新部署或安装时，自动保留 SQLite 数据库、上传资源文件与系统配置，零数据丢失风险
+- **权限自动纠偏**：部署与服务启动时自动修复全量文件及 `.git` 目录写权限，完美防止只读锁定
 
 ---
 
-## 🚀 快速上手
+## 🛠️ 技术栈说明
 
-### 应用环境变量
+- **后端 (Backend)**：Golang 1.23+ / Echo v4 / SQLite (GORM) / Zerolog / Cleanenv
+- **前端 (Frontend)**：React 19 / Rsbuild (Rspack) / React Router v7 / Zustand / TailwindCSS v4 / Radix UI (shadcn/ui) / Lucide Icons
+
+---
+
+## 🚀 快速部署指南
+
+### 1. Linux 一键自动部署（推荐）
+
+在 Linux 服务器上执行一键部署脚本：
+
+```bash
+# 下载安装脚本并执行
+curl -fsSL https://gitee.com/kerntau/moments/raw/main/install.sh | bash
+```
+
+> **重新部署/升级说明**：
+> 再次运行部署脚本时，会自动安全停止旧服务，清除旧的临时编译缓存，**全量保留你的 SQLite 数据库与上传图片**，并自动矫正文件读写权限。
+
+---
+
+### 2. 环境变量说明
 
 | 变量名 | 说明 | 默认值 |
 | --- | --- | --- |
-| PORT | 监听端口 | 3000 |
-| CORS_ORIGIN | 允许的跨域 Origin 列表 | 空，多个 Origin 使用逗号分隔 |
-| JWT_KEY | JWT 密钥 | 空（默认随机生成） |
-| DB | SQLite 数据库路径 | /app/data/db.sqlite |
-| UPLOAD_DIR | 本地上传文件目录 | /app/data/upload |
-| LOG_LEVEL | 日志级别 | info |
+| `PORT` | 服务监听端口 | `37892` |
+| `SERVICE_HOST` | 监听绑定地址 | `0.0.0.0` |
+| `JWT_KEY` | JWT 鉴权密钥 | 随机生成 32 位字符串 |
+| `DB` | SQLite 数据库存储路径 | `/app/data/db.sqlite` |
+| `UPLOAD_DIR` | 本地媒体文件存储目录 | `/app/data/upload` |
+| `LOG_LEVEL` | 日志打印级别 (`INFO`/`DEBUG`/`WARN`) | `INFO` |
 
 ---
 
-## 🛠️ 本地开发指南
+## 🗺️ 地理定位与高德地图配置说明
 
-### 1. 使用 Makefile（推荐）
-
-#### 启动后端 API 服务：
-```bash
-cd moments
-make backend-dev
-```
-
-#### 启动 React 前端（新终端）：
-```bash
-cd moments
-make frontend-install
-make frontend-dev
-```
-访问前端开发环境：`http://localhost:3000`
+1. **移动端 GPS 定位要求**：
+   - 现代移动端浏览器（Safari、微信内置浏览器、Chrome Mobile）强制要求网页必须在 **HTTPS 协议** 下（或 `localhost`）才允许调取 GPS 定位权限。如在 HTTP 协议下访问，定位会自动降级并给予用户清晰提示。
+2. **高德地图与海外地点搜索**：
+   - 高德地图 API 仅涵盖中国大陆及港澳台数据。针对海外城市或搜索无高德 POI 的地点，系统会自动降级无缝切换为 **OpenStreetMap 全球检索**，确保国内外地点均可灵活搜索与添加。
 
 ---
 
-### 2. 手动启动
+## 💻 本地开发与打包
 
-#### 后端 (Golang)：
+### 1. 本地开发环境
+
 ```bash
-cd moments/backend
+# 克隆仓库
+git clone https://gitee.com/kerntau/moments.git
+cd moments
+
+# 启动后端 (Golang)
+cd backend
 go run .
-```
 
-#### React 19 前端：
-```bash
-cd moments/front-react
+# 启动前端 React (新终端)
+cd ../front-react
 pnpm install
 pnpm run dev
 ```
 
----
-
-## 📦 生产打包构建
-
-一键编译 React 静态产物并嵌入 Go 后端单可执行文件：
+### 2. 生产单二进制编译
 
 ```bash
-# 1. 编译 React 19 前端产物至 backend/public
-cd moments/front-react
+# 1. 编译 React 静态产物至 backend/public
+cd front-react
 pnpm run build
 
-# 2. 编译 Go 嵌入式单二进制文件
+# 2. 编译 Golang 单二进制文件 (prod 模式)
 cd ../backend
-go build -tags prod -o dist/moments.exe .
+go build -tags prod -ldflags="-s -w" -o dist/moments .
 ```
 
 ---
 
 ## 📄 开源许可
 
-本项目遵循 MIT 许可证。欢迎提交 Issue 与 Pull Request！
+本项目遵循 [MIT 许可证](LICENSE.txt)。
