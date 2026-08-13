@@ -747,8 +747,30 @@ install_node() {
   node_ready || fail "Node.js 20+ 安装失败，请手动安装后重新运行此脚本"
 }
 
+ensure_go_symlink() {
+  local target_go="/usr/local/go/bin/go"
+  if [ ! -x "$target_go" ]; then
+    target_go="$(command -v go 2>/dev/null || true)"
+  fi
+  if [ -n "$target_go" ] && [ -x "$target_go" ]; then
+    if [ "$target_go" != "/usr/bin/go" ]; then
+      run_root ln -sf "$target_go" /usr/bin/go 2>/dev/null || true
+    fi
+    if [ "$target_go" != "/usr/local/bin/go" ]; then
+      run_root ln -sf "$target_go" /usr/local/bin/go 2>/dev/null || true
+    fi
+    local target_gofmt="$(dirname "$target_go")/gofmt"
+    if [ -x "$target_gofmt" ]; then
+      run_root ln -sf "$target_gofmt" /usr/bin/gofmt 2>/dev/null || true
+      run_root ln -sf "$target_gofmt" /usr/local/bin/gofmt 2>/dev/null || true
+    fi
+  fi
+}
+
 install_go() {
+  ensure_go_symlink
   if go_ready; then
+    ensure_go_symlink
     log "Go 已满足要求：$(go version | awk '{print $3}')"
     return
   fi
@@ -795,8 +817,7 @@ install_go() {
   run_quiet "解压 Go 到 /usr/local/go" run_root tar -C /usr/local -xzf "$download_dir/go.tgz"
   rm -rf -- "$download_dir"
   export PATH="/usr/local/go/bin:$PATH"
-  run_root ln -sf /usr/local/go/bin/go /usr/bin/go
-  run_root ln -sf /usr/local/go/bin/gofmt /usr/bin/gofmt
+  ensure_go_symlink
   go_ready || fail "Go 1.23+ 安装失败，请手动安装后重新运行此脚本"
 }
 
@@ -1032,6 +1053,7 @@ ExecStart=${binary_path}
 Restart=on-failure
 RestartSec=5
 EnvironmentFile=${working_dir}/.env
+Environment="PATH=/usr/local/go/bin:/usr/local/bin:/usr/bin:/bin:$PATH"
 StandardOutput=journal
 StandardError=journal
 SyslogIdentifier=${SERVICE_NAME}
