@@ -1051,12 +1051,50 @@ EOF
   run_quiet "设置开机自启" run_root systemctl enable "$SERVICE_NAME"
 }
 
+free_service_port() {
+  local port="$SERVICE_PORT"
+  if ! port_is_listening "$port"; then
+    return 0
+  fi
+
+  log_warn "检测到目标端口 ${port} 当前已被占用，自动清理与释放端口..."
+
+  # 1. 优先尝试停止已有的 systemd 服务
+  if systemctl is-active --quiet "$SERVICE_NAME" 2>/dev/null; then
+    run_quiet --allow-failure "停止旧服务以释放端口 ${port}" run_root systemctl stop "$SERVICE_NAME"
+    sleep 1
+  fi
+
+  # 2. 若端口依然被占用，检索并清理孤儿进程/残余进程
+  if port_is_listening "$port"; then
+    if command -v fuser >/dev/null 2>&1; then
+      run_quiet --allow-failure "使用 fuser 强制释放端口 ${port}" run_root fuser -k -9 "${port}/tcp"
+    elif command -v lsof >/dev/null 2>&1; then
+      local pids
+      pids="$(run_root lsof -t -i:"$port" 2>/dev/null || true)"
+      if [ -n "$pids" ]; then
+        run_quiet --allow-failure "终止占用端口 ${port} 的进程" run_root kill -9 $pids
+      fi
+    fi
+    sleep 1
+  fi
+
+  if port_is_listening "$port"; then
+    log_warn "警告：端口 ${port} 仍被占用，尝试强行启动服务..."
+  else
+    log "端口 ${port} 已成功自动解绑并释放"
+  fi
+}
+
 start_service() {
   local binary_path="$TARGET_DIR/backend/dist/moments"
   [ -x "$binary_path" ] || [ -f "$binary_path" ] || fail "Go 后端构建产物不存在：$binary_path"
 
   # 启动服务前，统一纠正目标目录与 .git 的所有权和写权限
   ensure_app_ownership
+
+  # 清理可能被孤儿进程或残余程序占用的目标端口
+  free_service_port
 
   if systemctl is-active --quiet "$SERVICE_NAME" 2>/dev/null; then
     log "检测到旧服务正在运行，替换二进制并重启"
