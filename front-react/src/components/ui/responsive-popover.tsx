@@ -107,18 +107,18 @@ export const ResponsivePopoverContent: React.FC<ResponsivePopoverContentProps> =
   if (isDesktop) {
     return (
       <DialogContent
-        className={`rounded-3xl border border-neutral-100 dark:border-neutral-800/80 shadow-2xl bg-white dark:bg-neutral-900 p-6 sm:max-w-md ${
+        className={`rounded-2xl border border-neutral-100 dark:border-neutral-800/80 shadow-2xl bg-white dark:bg-neutral-900 p-5 sm:max-w-[360px] ${
           className || ''
         }`}
       >
         {title && (
-          <DialogHeader className="pb-3 mb-2 border-b border-neutral-100 dark:border-neutral-800/80">
-            <DialogTitle className="text-base font-bold text-neutral-900 dark:text-neutral-100 tracking-tight">
+          <DialogHeader className="pb-2 mb-1 border-b border-neutral-100/80 dark:border-neutral-800/60">
+            <DialogTitle className="text-sm font-semibold text-neutral-900 dark:text-neutral-100 tracking-tight">
               {title}
             </DialogTitle>
           </DialogHeader>
         )}
-        <div className="space-y-3.5">{children}</div>
+        <div className="space-y-3">{children}</div>
       </DialogContent>
     );
   }

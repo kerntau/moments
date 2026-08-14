@@ -6,7 +6,7 @@ import { NewMemoPage } from '@/pages/new';
 import { EditMemoPage } from '@/pages/edit';
 import { MemoDetailPage } from '@/pages/memo-detail';
 import { LoginPage } from '@/pages/login';
-import { UserCalendarPage } from '@/pages/user-calendar';
+import { ProfilePage } from './pages/profile';
 import { SysSettingsPage } from '@/pages/sys-settings';
 import { TagsPage } from '@/pages/tags';
 import { LocationPage } from '@/pages/location';
@@ -55,10 +55,10 @@ const router = createBrowserRouter([
   },
 
   {
-    path: '/user/calendar',
+    path: '/profile',
     element: (
       <DefaultLayout>
-        <UserCalendarPage />
+        <ProfilePage />
       </DefaultLayout>
     ),
   },

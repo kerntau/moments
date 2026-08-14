@@ -50,5 +50,5 @@ export const MyFancyBox: React.FC<MyFancyBoxProps> = ({ children, options }) => 
     };
   }, [options, children]);
 
-  return <div ref={containerRef}>{children}</div>;
+  return <div ref={containerRef} className="w-full h-full">{children}</div>;
 };

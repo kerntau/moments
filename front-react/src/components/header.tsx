@@ -71,10 +71,10 @@ export const Header: React.FC<HeaderProps> = ({ user, onAddFriend }) => {
               <ChevronLeft className="w-5 h-5 text-white" />
             </div>
             {path.includes('/memo/') && <span>详情</span>}
-            {path === '/user/calendar' && <span>日历检索</span>}
+            {path === '/profile' && <span>相册</span>}
             {path === '/sys/settings' && <span>系统设置</span>}
             {path.includes('/tags/') && <span>{params.tag || '话题专栏'}</span>}
-            {path !== '/user/calendar' &&
+            {path !== '/profile' &&
               path !== '/sys/settings' &&
               !path.includes('/tags/') &&
               !path.includes('/memo/') && (
@@ -114,8 +114,8 @@ export const Header: React.FC<HeaderProps> = ({ user, onAddFriend }) => {
             <Link to="/new" title="发表">
               <Camera className="text-sky-500 w-5 h-5 cursor-pointer" />
             </Link>
-            <span title="检索" onClick={() => navigate('/user/calendar')}>
-              <Search className="text-sky-500 w-5 h-5 cursor-pointer" />
+            <span title="我的" onClick={() => navigate('/profile')}>
+              <User className="text-sky-500 w-5 h-5 cursor-pointer" />
             </span>
             <span title="友链" onClick={() => navigate('/friend')}>
               <Users className="text-sky-500 w-5 h-5 cursor-pointer" />
@@ -145,12 +145,18 @@ export const Header: React.FC<HeaderProps> = ({ user, onAddFriend }) => {
         />
 
         {/* 昵称：位于封面图右下角，向下紧贴封面图底部 */}
-        <div className="absolute right-[88px] sm:right-[98px] bottom-2 sm:bottom-2.5 font-bold text-white text-base sm:text-lg tracking-wide select-none drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)]">
+        <div 
+          className="absolute right-[88px] sm:right-[98px] bottom-2 sm:bottom-2.5 font-bold text-white text-base sm:text-lg tracking-wide select-none drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)] cursor-pointer hover:opacity-90 transition-opacity"
+          onClick={() => navigate('/profile')}
+        >
           {user.nickname}
         </div>
 
         {/* 头像：无边框、适中圆角，自然跨越封面图底部 */}
-        <div className="absolute right-4 sm:right-5 -bottom-6 w-[62px] h-[62px] sm:w-[68px] sm:h-[68px] rounded-xl overflow-hidden shadow-sm flex-shrink-0 z-10">
+        <div 
+          className="absolute right-4 sm:right-5 -bottom-6 w-[62px] h-[62px] sm:w-[68px] sm:h-[68px] rounded-xl overflow-hidden shadow-sm flex-shrink-0 z-10 cursor-pointer active:scale-95 transition-transform"
+          onClick={() => navigate('/profile')}
+        >
           <img
             src={user.avatarUrl || '/avatar.webp'}
             className="w-full h-full object-cover"

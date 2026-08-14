@@ -30,9 +30,9 @@ export const Confirm: React.FC<ConfirmProps> = ({
   return (
     <ResponsivePopover open={open} onOpenChange={setOpen}>
       <ResponsivePopoverTrigger asChild>{children}</ResponsivePopoverTrigger>
-      <ResponsivePopoverContent className="w-full sm:w-[420px] p-4.5 flex flex-col gap-3.5" side="top" title="操作确认">
-        <p className="text-neutral-700 dark:text-neutral-200 text-sm font-medium leading-relaxed">{title}</p>
-        <div className="flex gap-2.5 items-center pt-1">
+      <ResponsivePopoverContent className="w-[90vw] sm:max-w-[340px] flex flex-col gap-2.5 sm:gap-3" side="top" title="操作确认">
+        <p className="text-neutral-700 dark:text-neutral-200 text-sm font-medium leading-normal py-0.5 text-center sm:text-left">{title}</p>
+        <div className="flex gap-2.5 items-center pt-1 sm:pt-2">
           <Button size="sm" variant="outline" className="flex-1 h-9 rounded-xl border-none bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 text-xs font-medium" onClick={handleCancel}>
             取消
           </Button>

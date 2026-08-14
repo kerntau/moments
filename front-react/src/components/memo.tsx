@@ -15,6 +15,7 @@ import {
   Edit,
   MapPin,
   MoreHorizontal,
+  Users,
 } from 'lucide-react';
 import { Confirm } from '@/components/confirm';
 import { Comment } from '@/components/comment';
@@ -177,6 +178,7 @@ export const Memo: React.FC<MemoProps> = ({ memo }) => {
     try {
       await useMyFetch(`/memo/remove?id=${id}`);
       toast.success('删除成功!');
+      setShowToolbar(false);
       setMoreToolbar(false);
       if (isDetailPage) {
         navigate('/');
@@ -212,7 +214,10 @@ export const Memo: React.FC<MemoProps> = ({ memo }) => {
           memo.pinned ? 'bg-slate-100 dark:bg-neutral-700/60' : ''
         }`}
       >
-        <div className="avatar flex-shrink-0 pt-[1px]">
+        <div 
+          className="avatar flex-shrink-0 pt-[1px] cursor-pointer active:opacity-80 transition-opacity"
+          onClick={() => navigate('/profile')}
+        >
           <img
             src={memo.user.avatarUrl}
             alt="Avatar"
@@ -222,7 +227,12 @@ export const Memo: React.FC<MemoProps> = ({ memo }) => {
 
         <div className="flex flex-col flex-1 min-w-0">
           <div className="username text-[#576b95] dark:text-[#7d90b8] mb-0.5 font-semibold text-[15px] leading-snug flex justify-between items-center select-none">
-            <span>{memo.user.nickname}</span>
+            <span 
+              className="cursor-pointer hover:underline"
+              onClick={() => navigate('/profile')}
+            >
+              {memo.user.nickname}
+            </span>
             <div className="flex items-center">
               {memo.pinned && <Pin className="w-4 h-4 text-amber-500" />}
               {memo.showType === 0 && <Lock className="w-4 h-4 text-red-500 ml-2 dark:text-neutral-300" />}
@@ -304,11 +314,24 @@ export const Memo: React.FC<MemoProps> = ({ memo }) => {
           )}
 
           <div className="flex justify-between items-center relative mt-1.5 mb-1">
-            <div className="flex text-[13px] text-[#b2b2b2] dark:text-neutral-500 font-normal">
-              {sysConfig.timeFormat === 'timeAgo'
-                ? dayjs(memo.createdAt).fromNow()
-                : dayjs(memo.createdAt).format('YYYY-MM-DD HH:mm')}
-              {dayjs(memo.createdAt).isAfter(dayjs()) ? '，未到发布时间，仅自己可见' : ''}
+            <div className="flex items-center gap-1.5 text-[13px] leading-none text-[#b2b2b2] dark:text-neutral-500 font-normal">
+              <span className="leading-none flex items-center">
+                {sysConfig.timeFormat === 'timeAgo'
+                  ? dayjs(memo.createdAt).fromNow()
+                  : dayjs(memo.createdAt).format('YYYY-MM-DD HH:mm')}
+                {dayjs(memo.createdAt).isAfter(dayjs()) ? '，未到发布时间，仅自己可见' : ''}
+              </span>
+
+              {(userinfo.id === 1 || userinfo.id === memo.userId) && (
+                <Confirm title="确定要删除这条动态吗？" onOk={() => removeMemo(memo.id)}>
+                  <span
+                    title="删除动态"
+                    className="cursor-pointer text-[#576b95] dark:text-[#7d90b8] hover:text-red-500 transition-colors inline-flex items-center justify-center ml-0.5 mt-[1.5px]"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </span>
+                </Confirm>
+              )}
             </div>
 
             <div
@@ -341,6 +364,31 @@ export const Memo: React.FC<MemoProps> = ({ memo }) => {
                       <MessageSquare className="w-3.5 h-3.5" />
                       <span>评论</span>
                     </div>
+                  )}
+
+                  {userinfo.id === memo.userId && (
+                    <div
+                      className="flex flex-row gap-1 cursor-pointer items-center px-3 hover:opacity-80"
+                      onClick={() => {
+                        setShowToolbar(false);
+                        navigate(`/edit/${memo.id}`);
+                      }}
+                    >
+                      <Edit className="w-3.5 h-3.5" />
+                      <span>编辑</span>
+                    </div>
+                  )}
+
+                  {(userinfo.id === 1 || userinfo.id === memo.userId) && (
+                    <Confirm title="确定要删除这条动态吗？" onOk={() => removeMemo(memo.id)}>
+                      <div
+                        className="flex flex-row gap-1 cursor-pointer items-center px-3 hover:opacity-80 text-red-300 hover:text-red-400"
+                        onClick={() => setShowToolbar(false)}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>删除</span>
+                      </div>
+                    </Confirm>
                   )}
 
                   {location.pathname !== `/memo/${memo.id}` && (

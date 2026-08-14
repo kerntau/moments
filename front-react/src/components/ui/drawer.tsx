@@ -173,21 +173,21 @@ export const DrawerContent: React.FC<DrawerContentProps> = ({ className, childre
         onTouchEnd={handleTouchEnd}
       >
         {/* 顶部拖拽提手区 */}
-        <div className="flex justify-center pt-2.5 pb-0.5 cursor-grab active:cursor-grabbing">
+        <div className="flex justify-center pt-2 pb-1 cursor-grab active:cursor-grabbing">
           <div className="w-8 h-1 rounded-full bg-neutral-300 dark:bg-neutral-600 opacity-60" />
         </div>
 
         {/* 标题栏 */}
         {title && (
-          <div className="px-4 py-1 text-center border-b border-neutral-100/80 dark:border-neutral-800/60">
-            <span className="text-sm font-bold text-neutral-800 dark:text-neutral-100 tracking-tight">
+          <div className="px-5 pt-0.5 pb-1 text-center">
+            <span className="text-sm font-semibold text-neutral-800 dark:text-neutral-100 tracking-tight">
               {title}
             </span>
           </div>
         )}
 
         {/* 内容区 */}
-        <div className="px-4 pt-2.5 pb-[max(1rem,env(safe-area-inset-bottom))] flex flex-col gap-3">
+        <div className="px-5 pt-1 pb-[max(1.25rem,env(safe-area-inset-bottom))] flex flex-col gap-2.5">
           {children}
         </div>
       </div>
