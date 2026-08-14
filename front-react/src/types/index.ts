@@ -174,13 +174,7 @@ export type Video = {
 
 export type VideoType = Video['type'];
 
-export type Friend = {
-  id: number;
-  name: string;
-  icon: string;
-  url: string;
-  desc: string;
-};
+
 
 export type UpdateCheckResult = {
   hasUpdate: boolean;

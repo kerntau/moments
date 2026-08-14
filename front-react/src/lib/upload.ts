@@ -3,28 +3,6 @@ import { toast } from 'sonner';
 import { useGlobalStore } from '@/store';
 import { useMyFetch } from './api';
 
-export const sha256 = async (file: File): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsArrayBuffer(file);
-    reader.onload = () => {
-      if (!reader.result) {
-        reject(new Error('File read failed'));
-        return;
-      }
-
-      if (typeof reader.result === 'string') {
-        resolve(CryptoJS.SHA256(reader.result).toString(CryptoJS.enc.Hex));
-        return;
-      }
-
-      const wordArray = CryptoJS.lib.WordArray.create(reader.result);
-      resolve(CryptoJS.SHA256(wordArray).toString(CryptoJS.enc.Hex));
-    };
-    reader.onerror = () => reject(new Error('File read error'));
-  });
-};
-
 type OnProgressCallback = (progress: number) => void;
 
 export type OnTotalProgressCallback = (

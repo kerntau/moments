@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Upload } from 'lucide-react';
 
-export interface FileInputProps {
+interface FileInputProps {
   accept?: string;
   multiple?: boolean;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;

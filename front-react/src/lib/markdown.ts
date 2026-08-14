@@ -2,7 +2,7 @@ import markdownit from 'markdown-it';
 import { fromHighlighter } from '@shikijs/markdown-it/core';
 import { createHighlighterCore } from 'shiki/core';
 
-export const md = markdownit({
+const md = markdownit({
   html: true,
   linkify: true,
   typographer: true,
@@ -11,7 +11,7 @@ export const md = markdownit({
 
 let highlighterPromise: Promise<any> | null = null;
 
-export const initMarkdownHighlighter = () => {
+const initMarkdownHighlighter = () => {
   if (highlighterPromise) return highlighterPromise;
 
   highlighterPromise = createHighlighterCore({
