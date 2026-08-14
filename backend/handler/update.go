@@ -132,6 +132,14 @@ func (u *UpdateHandler) runCommand(dir string, name string, args ...string) (str
 	binPath := findExecutable(name)
 	cmd := exec.Command(binPath, args...)
 	cmd.Dir = dir
+
+	// 设置 Go 编译与模块缓存路径，防止 systemd 安全模式下写入 /root/.cache 报错
+	env := os.Environ()
+	gocachePath := filepath.Join(dir, ".gocache")
+	gomodcachePath := filepath.Join(dir, ".gomodcache")
+	env = append(env, "GOCACHE="+gocachePath, "GOMODCACHE="+gomodcachePath)
+	cmd.Env = env
+
 	out, err := cmd.CombinedOutput()
 	output := strings.TrimSpace(string(out))
 	if err != nil {

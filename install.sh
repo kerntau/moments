@@ -1054,6 +1054,8 @@ Restart=on-failure
 RestartSec=5
 EnvironmentFile=${working_dir}/.env
 Environment="PATH=/usr/local/go/bin:/usr/local/bin:/usr/bin:/bin:$PATH"
+Environment="GOCACHE=${working_dir}/.gocache"
+Environment="GOMODCACHE=${working_dir}/.gomodcache"
 StandardOutput=journal
 StandardError=journal
 SyslogIdentifier=${SERVICE_NAME}
