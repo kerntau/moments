@@ -1005,7 +1005,7 @@ load_runtime_port() {
 # ─────────────────────────────────────────────────────────────
 build_frontend() {
   log "安装项目依赖（pnpm install）"
-  run_quiet "安装前端与工作区依赖" pnpm --dir "$TARGET_DIR" install --frozen-lockfile || run_quiet "安装依赖（无 freeze 模式）" pnpm --dir "$TARGET_DIR" install
+  run_quiet --allow-failure "安装前端与工作区依赖" pnpm --dir "$TARGET_DIR" install --frozen-lockfile || run_quiet "安装依赖（无 freeze 模式）" pnpm --dir "$TARGET_DIR" install
   log "构建前端（输出到 backend/public/）"
   run_quiet "构建前端" pnpm --dir "$TARGET_DIR" --filter front-react run build
 }
