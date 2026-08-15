@@ -3,10 +3,7 @@ import { useLocation, useNavigate } from 'react-router';
 import { useTheme } from 'next-themes';
 import {
   Camera,
-  Search,
-  Users,
   Settings,
-  User,
   LogOut,
   Sun,
   MoonStar,

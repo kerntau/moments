@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { toast } from 'sonner';
-import dayjs from 'dayjs';
 import {
   Eye, EyeOff, RefreshCw, Download, CheckCircle, XCircle, Loader2, GitBranch, Settings2,
-  User, Sliders, Puzzle, Cpu, Shield, Globe, HardDrive, Sparkles, Terminal, Trash2, Save, KeyRound
+  Sparkles, Terminal
 } from 'lucide-react';
 import { Header } from '@/components/header';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
@@ -404,12 +403,8 @@ export const SysSettingsPage: React.FC = () => {
   const setCurrentUser = useGlobalStore((state) => state.setCurrentUser);
   const setSysConfig = useGlobalStore((state) => state.setSysConfig);
 
-  const [version, setVersion] = useState('');
-  const [commitId, setCommitId] = useState('');
   const [showAmapKey, setShowAmapKey] = useState(false);
   const [showAmapSecurityCode, setShowAmapSecurityCode] = useState(false);
-  const [showSysLogDialog, setShowSysLogDialog] = useState(false);
-
 
   // 管理员个人 Profile 表达状态
   const [profileState, setProfileState] = useState({
@@ -432,8 +427,8 @@ export const SysSettingsPage: React.FC = () => {
     memoMaxHeight: 300,
     commentOrder: 'desc',
     timeFormat: 'timeAgo',
-    adminUserName: 'kerntau',
-    title: 'COT',
+    adminUserName: 'admin',
+    title: '极简朋友圈',
     favicon: '/favicon.ico',
     beiAnNo: '',
     css: '',
@@ -449,9 +444,9 @@ export const SysSettingsPage: React.FC = () => {
       endpoint: '',
       thumbnailSuffix: '',
     },
-    enableAmap: true,
-    amapKey: '6cee66ca226c478ae680d8ced57ec169',
-    amapSecurityJsCode: '6b80d61962e13fe0bb99cf72e6dadc47',
+    enableAmap: false,
+    amapKey: '',
+    amapSecurityJsCode: '',
     enableOAuth: false,
     enableEmail: false,
     smtpHost: '',
@@ -482,8 +477,6 @@ export const SysSettingsPage: React.FC = () => {
           ...res,
           adminUserName: res.adminUserName || currentUser?.username || 'admin',
         }));
-        setVersion(res.version || '');
-        setCommitId(res.commitId || '');
       }
     } catch (err: any) {
       toast.error(err?.message || '获取系统配置失败');
@@ -997,7 +990,7 @@ export const SysSettingsPage: React.FC = () => {
                 <label className="font-bold text-neutral-700 dark:text-neutral-300 mb-1 block">Endpoint 地址</label>
                 <Input
                   placeholder="https://oss-cn-hangzhou.aliyuncs.com"
-                  value={formState.s3?.domain || ''}
+                  value={formState.s3?.endpoint || ''}
                   onChange={(e) =>
                     setFormState({ ...formState, s3: { ...formState.s3, endpoint: e.target.value } })
                   }

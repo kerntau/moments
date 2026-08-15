@@ -1,16 +1,14 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router';
 import dayjs from 'dayjs';
-import { Camera, Play, Lock, FileText } from 'lucide-react';
+import { Camera, Play, Lock } from 'lucide-react';
 import { useGlobalStore } from '@/store';
 import { useMyFetch } from '@/lib/api';
 import type { MemoVO, UserVO } from '@/types';
 import { Header } from '@/components/header';
-import { renderMarkdown } from '@/lib/markdown';
 import { MyFancyBox } from '@/components/my-fancybox';
 export const ProfilePage: React.FC = () => {
   const currentUser = useGlobalStore((state) => state.currentUser as UserVO);
-  const sysConfig = useGlobalStore((state) => state.sysConfig);
   const navigate = useNavigate();
 
   const [memos, setMemos] = useState<MemoVO[]>([]);

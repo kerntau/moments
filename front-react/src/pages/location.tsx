@@ -135,71 +135,51 @@ export const LocationPage: React.FC = () => {
     return () => observer.disconnect();
   }, [hasNext, loadMore]);
 
-  // OpenStreetMap Nominatim 兜底
-  const mapUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(locationName)}&limit=1`;
-  const [coords, setCoords] = useState<{lat: number, lng: number} | null>(null);
-
-  // 地理编码解析与高德/OpenStreetMap 地图渲染
+  // 地理编码解析与高德地图渲染
   useEffect(() => {
-    if (!locationName) return;
+    if (!locationName || !amapKey) return;
 
-    if (amapKey) {
-      loadAmapSDK(amapKey, amapSecurityCode)
-        .then((AMap) => {
-          AMap.plugin(['AMap.Geocoder'], () => {
-            const geocoder = new AMap.Geocoder();
-            geocoder.getLocation(locationName, (status: string, result: any) => {
-              if (status === 'complete' && result.geocodes.length) {
-                const loc = result.geocodes[0].location;
-                setCoords({ lat: loc.lat, lng: loc.lng });
-                if (mapContainerRef.current) {
-                  const mapStyle = 'amap://styles/normal';
+    loadAmapSDK(amapKey, amapSecurityCode)
+      .then((AMap) => {
+        AMap.plugin(['AMap.Geocoder'], () => {
+          const geocoder = new AMap.Geocoder();
+          geocoder.getLocation(locationName, (status: string, result: any) => {
+            if (status === 'complete' && result.geocodes.length) {
+              const loc = result.geocodes[0].location;
+              if (mapContainerRef.current) {
+                const mapStyle = 'amap://styles/normal';
 
-                  const map = new AMap.Map(mapContainerRef.current, {
-                    center: [loc.lng, loc.lat],
-                    zoom: 15.5,
-                    mapStyle: mapStyle,
-                    viewMode: '2D',
-                  });
+                const map = new AMap.Map(mapContainerRef.current, {
+                  center: [loc.lng, loc.lat],
+                  zoom: 15.5,
+                  mapStyle: mapStyle,
+                  viewMode: '2D',
+                });
 
-                  const markerContent = document.createElement('div');
-                  markerContent.innerHTML = `
-                    <div style="position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                      <div style="position: absolute; bottom: -2px; width: 10px; height: 3px; background: rgba(0,0,0,0.25); border-radius: 50%; filter: blur(1px);"></div>
-                      <div style="position: relative; width: 15px; height: 15px; background: #0284c7; border: 2px solid #ffffff; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); box-shadow: 0 2px 5px rgba(0,0,0,0.25); display: flex; align-items: center; justify-content: center;">
-                        <div style="width: 4px; height: 4px; background: #ffffff; border-radius: 50%;"></div>
-                      </div>
+                const markerContent = document.createElement('div');
+                markerContent.innerHTML = `
+                  <div style="position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                    <div style="position: absolute; bottom: -2px; width: 10px; height: 3px; background: rgba(0,0,0,0.25); border-radius: 50%; filter: blur(1px);"></div>
+                    <div style="position: relative; width: 15px; height: 15px; background: #0284c7; border: 2px solid #ffffff; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); box-shadow: 0 2px 5px rgba(0,0,0,0.25); display: flex; align-items: center; justify-content: center;">
+                      <div style="width: 4px; height: 4px; background: #ffffff; border-radius: 50%;"></div>
                     </div>
-                  `;
+                  </div>
+                `;
 
-                  new AMap.Marker({
-                    position: [loc.lng, loc.lat],
-                    map: map,
-                    content: markerContent,
-                    offset: new AMap.Pixel(-7.5, -15),
-                  });
-                  amapInstanceRef.current = map;
-                }
+                new AMap.Marker({
+                  position: [loc.lng, loc.lat],
+                  map: map,
+                  content: markerContent,
+                  offset: new AMap.Pixel(-7.5, -15),
+                });
+                amapInstanceRef.current = map;
               }
-            });
+            }
           });
-        })
-        .catch(() => {});
-    } else {
-      fetch(mapUrl)
-        .then(r => r.json())
-        .then(data => {
-          if (data && data.length > 0) {
-            setCoords({ lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) });
-          }
-        })
-        .catch(() => {});
-    }
-  }, [locationName, amapKey, amapSecurityCode, mapUrl]);
-
-  const embedMapUrl = coords
-    ? `https://www.openstreetmap.org/export/embed.html?bbox=${coords.lng - 0.02}%2C${coords.lat - 0.02}%2C${coords.lng + 0.02}%2C${coords.lat + 0.02}&layer=mapnik&marker=${coords.lat}%2C${coords.lng}`
-    : '';
+        });
+      })
+      .catch(() => {});
+  }, [locationName, amapKey, amapSecurityCode]);
 
   return (
     <>

@@ -66,11 +66,5 @@ func GenerateCommentNotificationEmail(data CommentNotificationEmailData) (string
 		return "", err
 	}
 
-	// // 生成纯文本电子邮件
-	// plainTextBody, err := h.GeneratePlainText(email)
-	// if err != nil {
-	// 	return "", err
-	// }
-
 	return emailBody, nil
 }

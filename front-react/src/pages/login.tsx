@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router';
 import { toast } from 'sonner';
 import { Header } from '@/components/header';
 import { Button } from '@/components/ui/button';
@@ -7,17 +6,9 @@ import { Input } from '@/components/ui/input';
 import { useGlobalStore } from '@/store';
 import { useMyFetch } from '@/lib/api';
 import type { LoginResp, UserVO } from '@/types';
-import {
-  GithubIcon,
-  GoogleIcon,
-  QqIcon,
-  WechatIcon,
-  DouyinIcon,
-  BilibiliIcon,
-} from '@/components/oauth-icons';
+import { GithubIcon, GoogleIcon } from '@/components/oauth-icons';
 
 export const LoginPage: React.FC = () => {
-  const navigate = useNavigate();
   const currentUser = useGlobalStore((state) => state.currentUser as UserVO);
   const sysConfig = useGlobalStore((state) => state.sysConfig);
   const setUserinfo = useGlobalStore((state) => state.setUserinfo);

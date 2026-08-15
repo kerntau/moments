@@ -1,13 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router';
 import { useTheme } from 'next-themes';
-import { toast } from 'sonner';
 import {
   ChevronLeft,
   LogOut,
-  Plus,
   Camera,
-  Search,
   Users,
   Settings,
   User,
@@ -18,15 +15,12 @@ import {
 } from 'lucide-react';
 import type { UserVO } from '@/types';
 import { useGlobalStore } from '@/store';
-import { SystemLogDialog } from './system-log-dialog';
-
 
 interface HeaderProps {
   user: UserVO;
-  onAddFriend?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ user, onAddFriend }) => {
+export const Header: React.FC<HeaderProps> = ({ user }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const params = useParams();
@@ -36,16 +30,6 @@ export const Header: React.FC<HeaderProps> = ({ user, onAddFriend }) => {
   const userinfo = useGlobalStore((state) => state.userinfo);
   const setUserinfo = useGlobalStore((state) => state.setUserinfo);
   const setSysLogDialogOpen = useGlobalStore((state) => state.setSysLogDialogOpen);
-
-  const [scrollY, setScrollY] = useState(0);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrollY(window.scrollY);
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   const path = location.pathname;
 

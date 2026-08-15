@@ -5,7 +5,6 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import 'dayjs/locale/zh-cn';
 import { toast } from 'sonner';
 import {
-  ChevronLeft,
   Pin,
   Lock,
   Heart,
@@ -14,8 +13,6 @@ import {
   Trash2,
   Edit,
   MapPin,
-  MoreHorizontal,
-  Users,
 } from 'lucide-react';
 import { Confirm } from '@/components/confirm';
 import { Comment } from '@/components/comment';
@@ -27,7 +24,6 @@ import { DoubanBookPreview } from '@/components/douban-book-preview';
 import { DoubanMoviePreview } from '@/components/douban-movie-preview';
 import { VideoPreview } from '@/components/video-preview';
 import { VideoPreviewIframe } from '@/components/video-preview-iframe';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { useGlobalStore } from '@/store';
 import { useMyFetch } from '@/lib/api';
 import { renderMarkdown } from '@/lib/markdown';
@@ -55,20 +51,12 @@ export const Memo: React.FC<MemoProps> = ({ memo }) => {
   const [showMore, setShowMore] = useState(false);
   const [showMoreClicked, setShowMoreClicked] = useState(false);
   const [showToolbar, setShowToolbar] = useState(false);
-  const [moreToolbar, setMoreToolbar] = useState(false);
   const [liked, setLiked] = useState(false);
-  const [scrollY, setScrollY] = useState(0);
 
   const contentRef = useRef<HTMLDivElement>(null);
   const toolbarRef = useRef<HTMLDivElement>(null);
 
   const isDetailPage = location.pathname.startsWith('/memo/');
-
-  useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY);
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   useEffect(() => {
     try {
@@ -179,7 +167,6 @@ export const Memo: React.FC<MemoProps> = ({ memo }) => {
       await useMyFetch(`/memo/remove?id=${id}`);
       toast.success('删除成功!');
       setShowToolbar(false);
-      setMoreToolbar(false);
       if (isDetailPage) {
         navigate('/');
       } else {
@@ -194,7 +181,6 @@ export const Memo: React.FC<MemoProps> = ({ memo }) => {
     try {
       await useMyFetch(`/memo/setPinned?id=${id}`);
       toast.success('操作成功!');
-      setMoreToolbar(false);
       if (isDetailPage) {
         navigate('/');
       } else {
@@ -442,54 +428,6 @@ export const Memo: React.FC<MemoProps> = ({ memo }) => {
           )}
         </div>
       </div>
-
-      {/* 管理员/作者 Modal 操作 */}
-      <Dialog open={moreToolbar} onOpenChange={setMoreToolbar}>
-        <DialogContent className="sm:max-w-[400px] rounded-2xl bg-white dark:bg-neutral-900 border-none shadow-2xl">
-          <div className="flex items-center justify-center pt-2 text-gray-700 dark:text-neutral-200 font-semibold text-base">
-            基本操作
-          </div>
-          <div className="flex items-center justify-center gap-8 p-6 text-neutral-600 dark:text-neutral-300">
-            {userinfo.id === 1 && (
-              <div
-                className="flex flex-col gap-1 cursor-pointer items-center group"
-                onClick={() => setPinned(memo.id)}
-              >
-                <span className="flex items-center bg-neutral-100 dark:bg-neutral-800 p-3 rounded-full group-hover:bg-amber-100 dark:group-hover:bg-neutral-700 transition">
-                  <Pin className="w-6 h-6 text-amber-500" />
-                </span>
-                <span className="text-xs mt-1">{memo.pinned ? '取消置顶' : '置顶'}</span>
-              </div>
-            )}
-
-            {userinfo.id === memo.userId && (
-              <div
-                className="flex flex-col gap-1 cursor-pointer items-center group"
-                onClick={() => {
-                  setMoreToolbar(false);
-                  navigate(`/edit/${memo.id}`);
-                }}
-              >
-                <span className="flex items-center bg-neutral-100 dark:bg-neutral-800 p-3 rounded-full group-hover:bg-blue-100 dark:group-hover:bg-neutral-700 transition">
-                  <Edit className="w-6 h-6 text-blue-500" />
-                </span>
-                <span className="text-xs mt-1">编辑</span>
-              </div>
-            )}
-
-            {(userinfo.id === 1 || userinfo.id === memo.userId) && (
-              <Confirm onOk={() => removeMemo(memo.id)}>
-                <div className="flex flex-col gap-1 cursor-pointer items-center group">
-                  <span className="flex items-center bg-neutral-100 dark:bg-neutral-800 p-3 rounded-full group-hover:bg-red-100 dark:group-hover:bg-neutral-700 transition">
-                    <Trash2 className="w-6 h-6 text-red-500" />
-                  </span>
-                  <span className="text-xs mt-1">删除</span>
-                </div>
-              </Confirm>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };

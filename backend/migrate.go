@@ -25,19 +25,19 @@ func migrateTo3(tx *gorm.DB, log zerolog.Logger) {
 	if count == 0 {
 		log.Info().Msg("初始化默认配置...")
 		if err := tx.First(&admin).Error; errors.Is(err, gorm.ErrRecordNotFound) {
-			admin.Username = "kerntau"
+			admin.Username = "admin"
 			admin.Password = "$2a$12$Ruw0XIDW3IuHmD3WXsRTnOUt/0sfqgKWP3wbsqx5sGcCuebWa6X.i"
-			admin.Title = "COT"
-			admin.Slogan = "心中有景,花香满径"
-			admin.Nickname = "kerntau"
+			admin.Title = "极简朋友圈"
+			admin.Slogan = "记录美好瞬间"
+			admin.Nickname = "Admin"
 			admin.EnableS3 = "0"
 			admin.Favicon = "/favicon.png"
 			admin.CoverUrl = "/cover.webp"
 			admin.AvatarUrl = "/avatar.webp"
 			if err := tx.Save(&admin).Error; err != nil {
-				log.Info().Msgf("用户不存在,初始化[kerntau/a123456]用户... 失败:%s", err)
+				log.Info().Msgf("用户不存在,初始化[admin/a123456]用户... 失败:%s", err)
 			} else {
-				log.Info().Msg("用户不存在,初始化[kerntau/a123456]用户... 成功!")
+				log.Info().Msg("用户不存在,初始化[admin/a123456]用户... 成功!")
 			}
 		}
 		item.AdminUserName = admin.Username
@@ -63,9 +63,9 @@ func migrateTo3(tx *gorm.DB, log zerolog.Logger) {
 		item.EnableGoogleRecaptcha = false
 		item.EnableComment = true
 		item.EnableAutoLoadNextPage = false
-		item.EnableAmap = true
-		item.AmapKey = "6cee66ca226c478ae680d8ced57ec169"
-		item.AmapSecurityJsCode = "6b80d61962e13fe0bb99cf72e6dadc47"
+		item.EnableAmap = false
+		item.AmapKey = ""
+		item.AmapSecurityJsCode = ""
 		item.MaxCommentLength = 300
 		item.CommentOrder = "desc"
 		item.TimeFormat = "timeAgo"
@@ -147,6 +147,8 @@ func migrateTo3(tx *gorm.DB, log zerolog.Logger) {
 			}
 
 			if err = tx.Save(&memo).Error; err != nil {
+				log.Error().Msgf("迁移memo id:%d 失败: %v", memo.Id, err)
+			} else {
 				log.Info().Msgf("迁移memo id:%d 成功", memo.Id)
 			}
 
@@ -197,23 +199,7 @@ func migrateIframeVideoUrl(tx *gorm.DB, log zerolog.Logger) {
 			continue
 		}
 
-		// 测试数据开始
-		// if ext.Video.Value != "" {
-		// 	ext.Video.Type = "bilibili"
-		// 	ext.Video.Value = `<iframe src="//player.bilibili.com/player.html?isOutside=true&aid=123&bvid=FDA1FAD&cid=123&p=1" scrolling></iframe>`
-		// 	ext.Video.Value = `//player.bilibili.com/player.html?isOutside=true&aid=123&bvid=FDA1FAD&cid=123&p=1`
-		// 	ext.Video.Value = `https://player.bilibili.com/player.html?isOutside=true&aid=123&bvid=FDA1FAD&cid=123&p=1`
-		// }
 
-		// if ext.Video.Value != "" {
-		// 	ext.Video.Type = "youtube"
-		// 	ext.Video.Value = "https://www.youtube.com/watch?v=hacdT_G2Ara&q=123"
-		// 	ext.Video.Value = "https://youtu.be/hacdT_G2Ara?si=aa_a_a_aaa"
-		// 	ext.Video.Value = "https://youtu.be/hacdT_G2Ara"
-		// 	ext.Video.Value = "//www.youtube.com/embed/hacdT_G2Ara"
-		// 	ext.Video.Value = "https://www.youtube.com/embed/hacdT_G2Ara"
-		// }
-		// 测试数据结束
 
 		if ext.Video.Value == "" ||
 			strings.HasPrefix(ext.Video.Value, "https://player.bilibili.com/player.html") ||

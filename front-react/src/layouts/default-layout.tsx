@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useLocation } from 'react-router';
-import { ArrowUp, Camera, LayoutGrid, LogIn } from 'lucide-react';
+import { ArrowUp } from 'lucide-react';
 import { Footer } from '@/components/footer';
 import { MobileNav } from '@/components/mobile-nav';
 import { useGlobalStore } from '@/store';
@@ -12,11 +11,8 @@ interface DefaultLayoutProps {
 }
 
 export const DefaultLayout: React.FC<DefaultLayoutProps> = ({ children }) => {
-  const location = useLocation();
-  const userinfo = useGlobalStore((state) => state.userinfo);
   const setCurrentUser = useGlobalStore((state) => state.setCurrentUser);
   const setSysConfig = useGlobalStore((state) => state.setSysConfig);
-  const setSidebarOpen = useGlobalStore((state) => state.setSidebarOpen);
 
   const [scrollY, setScrollY] = useState(0);
 

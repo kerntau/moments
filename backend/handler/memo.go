@@ -384,8 +384,6 @@ func (m MemoHandler) SaveMemo(c echo.Context) error {
 		memo.CommentCount = 0
 	}
 
-	//content, tags := FindAndReplaceTags(req.Content)
-	//m.base.log.Info().Msgf("tags is %+v,content is %s", tags, content)
 	if len(req.Tags) == 0 {
 		memo.Tags = nil
 	} else {

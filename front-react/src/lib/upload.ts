@@ -1,4 +1,3 @@
-import CryptoJS from 'crypto-js';
 import { toast } from 'sonner';
 import { useGlobalStore } from '@/store';
 import { useMyFetch } from './api';

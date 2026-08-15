@@ -6,7 +6,6 @@ import {
   RefreshCw,
   Trash2,
   Search,
-  MessageSquare,
   Globe,
   User,
   Mail,

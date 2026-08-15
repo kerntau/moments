@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate, useLocation } from 'react-router';
+import { useNavigate } from 'react-router';
 import dayjs from 'dayjs';
 import { toast } from 'sonner';
 import {
@@ -50,7 +50,6 @@ interface MemoEditProps {
 
 export const MemoEdit: React.FC<MemoEditProps> = ({ id = 0 }) => {
   const navigate = useNavigate();
-  const location = useLocation();
 
   const [doubanType, setDoubanType] = useState<'book' | 'movie'>('book');
   const [doubanData, setDoubanData] = useState<DoubanBook | DoubanMovie>({});

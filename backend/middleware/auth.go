@@ -15,7 +15,7 @@ import (
 func Auth(injector do.Injector) echo.MiddlewareFunc {
 	cfg := do.MustInvoke[*vo.AppConfig](injector)
 	db := do.MustInvoke[*gorm.DB](injector)
-	//zlog := do.MustInvoke[zerolog.Logger](injector)
+
 	ignores := []string{
 		"/api/user/login",
 		"/api/memo/list",
@@ -24,6 +24,7 @@ func Auth(injector do.Injector) echo.MiddlewareFunc {
 		"/api/memo/like",
 		"/api/comment/add",
 		"/api/memo/get",
+		"/api/location/list",
 	}
 
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
@@ -39,7 +40,9 @@ func Auth(injector do.Injector) echo.MiddlewareFunc {
 					break
 				}
 			}
-			if !isIgnored && (strings.HasPrefix(path, "/upload") || strings.HasPrefix(path, "/api/user/profile/")) {
+			if !isIgnored && (strings.HasPrefix(path, "/upload") ||
+				strings.HasPrefix(path, "/api/user/profile/") ||
+				(strings.HasPrefix(path, "/api/oauth/") && (strings.HasSuffix(path, "/redirect") || strings.HasSuffix(path, "/callback")))) {
 				isIgnored = true
 			}
 

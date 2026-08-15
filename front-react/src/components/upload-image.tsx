@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { toast } from 'sonner';
-import { Image as ImageIcon, Plus, X } from 'lucide-react';
+import { Image as ImageIcon, X } from 'lucide-react';
 import { ResponsivePopover, ResponsivePopoverContent, ResponsivePopoverTrigger } from '@/components/ui/responsive-popover';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

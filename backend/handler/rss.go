@@ -56,7 +56,13 @@ func (r RssHandler) generateRss(host string) (string, error) {
 	_ = json.Unmarshal([]byte(sysConfig.Content), &sysConfigVO)
 
 	// 获取管理员信息
-	r.base.db.First(&user, "Username = ?", "admin")
+	adminUsername := sysConfigVO.AdminUserName
+	if adminUsername != "" {
+		r.base.db.First(&user, "username = ?", adminUsername)
+	}
+	if user.Id == 0 {
+		r.base.db.First(&user, 1)
+	}
 
 	// 使用自定义RSS
 	if sysConfigVO.Rss != "" {
@@ -78,16 +84,6 @@ func (r RssHandler) generateRss(host string) (string, error) {
 	feed := generateFeed(memos, &sysConfigVO, &user, host)
 
 	return feed.ToRss()
-
-	// // 将RSS内容写入/rss/default_rss.xml
-	// target := "/rss/default_rss.xml"
-	// dir := filepath.Dir(target)
-	// if err := os.MkdirAll(dir, os.ModePerm); err != nil {
-	// 	return "", fmt.Errorf("创建目录失败: %w", err)
-	// }
-	// if err := os.WriteFile(target, []byte(rss), 0644); err != nil {
-	// 	return "", fmt.Errorf("写入RSS失败: %w", err)
-	// }
 }
 
 func generateFeed(memos []db.Memo, sysConfigVO *vo.FullSysConfigVO, user *db.User, host string) *feeds.Feed {
