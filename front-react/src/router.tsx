@@ -8,6 +8,7 @@ import { MemoDetailPage } from '@/pages/memo-detail';
 import { LoginPage } from '@/pages/login';
 import { ProfilePage } from './pages/profile';
 import { SysSettingsPage } from '@/pages/sys-settings';
+import { AboutPage } from '@/pages/about';
 import { TagsPage } from '@/pages/tags';
 import { LocationPage } from '@/pages/location';
 import { OAuthCallbackPage } from '@/pages/oauth-callback';
@@ -67,6 +68,14 @@ const router = createBrowserRouter([
     element: (
       <DefaultLayout>
         <SysSettingsPage />
+      </DefaultLayout>
+    ),
+  },
+  {
+    path: '/about',
+    element: (
+      <DefaultLayout>
+        <AboutPage />
       </DefaultLayout>
     ),
   },

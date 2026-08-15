@@ -12,6 +12,7 @@ import {
   ArrowUp,
   LogIn,
   Terminal,
+  Info,
 } from 'lucide-react';
 import { useGlobalStore } from '@/store';
 import { SystemLogDialog } from './system-log-dialog';
@@ -150,6 +151,21 @@ export const MobileNav: React.FC = () => {
           )}
 
 
+
+          {/* 关于 */}
+          {path !== '/about' && (
+            <div
+              className="flex items-center gap-1.5 cursor-pointer group"
+              onClick={() => handleNavigate('/about')}
+            >
+              <span className="text-[11px] font-normal px-2 py-0.5 rounded-md bg-white/90 dark:bg-neutral-800/90 text-neutral-700 dark:text-neutral-200 border border-neutral-200/60 dark:border-neutral-700/60 shadow-sm backdrop-blur-md transition">
+                关于
+              </span>
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-white/90 dark:bg-neutral-800/90 text-neutral-700 dark:text-neutral-200 border border-neutral-200/70 dark:border-neutral-700/70 shadow-sm backdrop-blur-md active:scale-90 transition-transform">
+                <Info className="w-4 h-4 text-sky-500" />
+              </div>
+            </div>
+          )}
 
           {/* 外观切换 */}
           <div

@@ -12,6 +12,7 @@ import {
   Sun,
   MoonStar,
   Terminal,
+  Info,
 } from 'lucide-react';
 import type { UserVO } from '@/types';
 import { useGlobalStore } from '@/store';
@@ -56,9 +57,11 @@ export const Header: React.FC<HeaderProps> = ({ user }) => {
             </div>
             {path.includes('/memo/') && <span>详情</span>}
             {path === '/profile' && <span>相册</span>}
+            {path === '/about' && <span>关于</span>}
             {path === '/sys/settings' && <span>系统设置</span>}
             {path.includes('/tags/') && <span>{params.tag || '话题专栏'}</span>}
             {path !== '/profile' &&
+              path !== '/about' &&
               path !== '/sys/settings' &&
               !path.includes('/tags/') &&
               !path.includes('/memo/') && (
@@ -104,6 +107,9 @@ export const Header: React.FC<HeaderProps> = ({ user }) => {
             <span title="友链" onClick={() => navigate('/friend')}>
               <Users className="text-sky-500 w-5 h-5 cursor-pointer" />
             </span>
+            <span title="关于" onClick={() => navigate('/about')}>
+              <Info className="text-sky-500 w-5 h-5 cursor-pointer" />
+            </span>
             <span title="系统设置" onClick={() => navigate('/sys/settings')}>
               <Settings className="text-sky-500 w-5 h-5 cursor-pointer" />
             </span>
@@ -114,9 +120,14 @@ export const Header: React.FC<HeaderProps> = ({ user }) => {
             )}
           </>
         ) : (
-          <span title="登录" onClick={() => navigate('/user/login')}>
-            <LogIn className="text-sky-500 w-5 h-5 cursor-pointer" />
-          </span>
+          <>
+            <span title="关于" onClick={() => navigate('/about')}>
+              <Info className="text-sky-500 w-5 h-5 cursor-pointer" />
+            </span>
+            <span title="登录" onClick={() => navigate('/user/login')}>
+              <LogIn className="text-sky-500 w-5 h-5 cursor-pointer" />
+            </span>
+          </>
         )}
       </div>
 
@@ -139,7 +150,8 @@ export const Header: React.FC<HeaderProps> = ({ user }) => {
         {/* 头像：无边框、适中圆角，自然跨越封面图底部 */}
         <div 
           className="absolute right-4 sm:right-5 -bottom-6 w-[62px] h-[62px] sm:w-[68px] sm:h-[68px] rounded-xl overflow-hidden shadow-sm flex-shrink-0 z-10 cursor-pointer active:scale-95 transition-transform"
-          onClick={() => navigate('/profile')}
+          onClick={() => navigate('/about')}
+          title="关于"
         >
           <img
             src={user.avatarUrl || '/avatar.webp'}
