@@ -1,68 +1,102 @@
-# Moments
+<div align="center">
 
-一个轻量的自托管朋友圈（Memo）应用：Go/Echo 后端负责 API 与数据，React 19 前端提供动态发布、媒体浏览和互动。
+# MOMENTS // 极简朋友圈
 
-## 功能
+**Go + React 的自托管动态与媒体空间**<br>
+*Self-hosted memos with media, comments, and location.*
 
-- Markdown 动态、标签、评论和点赞
-- 多图拖拽排序、图片灯箱、本地视频
-- Bilibili / YouTube 嵌入与音乐卡片
-- SQLite 数据库存储，按日期归档上传文件
-- SHA-256 秒传、缩略图和可选 S3/OSS/COS 存储
-- 高德地图与 OpenStreetMap 双地图搜索
-- 后台在线升级、配置备份和权限修复
+[![Go](https://img.shields.io/badge/Go-1.23%2B-00ADD8?style=for-the-badge&logo=go&logoColor=white)](https://go.dev)
+[![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=111111)](https://react.dev)
+[![SQLite](https://img.shields.io/badge/SQLite-Embedded-003B57?style=for-the-badge&logo=sqlite&logoColor=white)](https://sqlite.org)
+[![License](https://img.shields.io/badge/License-MIT-555555?style=for-the-badge)](LICENSE.txt)
 
-## 技术栈
+</div>
 
-- 后端：Go 1.23+、Echo v4、GORM、SQLite、Zerolog、Cleanenv
-- 前端：React 19、Rsbuild、React Router 7、Zustand、Tailwind CSS 4、Radix UI
+---
 
-## 快速部署
+## 01. THE PURPOSE // 项目本源
 
-Linux 服务器可使用仓库中的 install.sh。运行前请审阅脚本内容并确认目标目录、权限和备份策略。
+Moments 是一个轻量自托管朋友圈（Memo）应用，支持 Markdown 动态、媒体、评论、点赞、位置搜索与后台升级。
 
-~~~bash
-git clone https://github.com/kerntau/moments.git
-cd moments
-bash install.sh
+[Repository](https://github.com/kerntau/moments)
+
+## 02. CORE ARCHITECTURE // 核心架构
+
+~~~mermaid
+graph LR
+  W[React + Rsbuild] --> API[Go Echo API]
+  API --> DB[(SQLite/GORM)]
+  API --> FS[Upload directory]
+  API -. optional .-> OBJ[S3/OSS/COS]
+  API --> MAP[Gaode / OpenStreetMap]
 ~~~
 
-主要环境变量：
+前端构建产物可嵌入后端二进制；上传文件与 SQLite 数据库应持久化到独立数据目录。
 
-| 变量 | 默认值 | 说明 |
+## 03. TECHNICAL MATRIX // 技术矩阵
+
+| 层 | 技术 | 说明 |
 | --- | --- | --- |
-| PORT | 37892 | 服务端口 |
-| SERVICE_HOST | 0.0.0.0 | 监听地址 |
-| JWT_KEY | 启动时随机生成 | JWT 密钥 |
-| DB | /app/data/db.sqlite | SQLite 文件 |
-| UPLOAD_DIR | /app/data/upload | 媒体目录 |
-| LOG_LEVEL | INFO | 日志级别 |
+| Backend | Go 1.23、Echo v4、GORM | API、鉴权与升级 |
+| Frontend | React 19、Rsbuild、Zustand | 动态、评论和媒体 |
+| Storage | SQLite、文件目录、可选对象存储 | 数据与上传 |
+| Location | 高德 JS API、OpenStreetMap | 定位和 POI |
+| Build | pnpm、Go build | 开发与单二进制发布 |
 
-## 本地开发
+## 04. REPOSITORY TOPOLOGY // 源码拓扑
+
+~~~text
+backend/             # Go API、数据库、服务入口
+front-react/         # React 前端
+backend/public/      # 生产嵌入的静态产物
+install.sh           # Linux 部署脚本
+docs/                # 运维与部署说明
+~~~
+
+## 05. CLONE & QUICK START // 极速开始
 
 需要 Go 1.23+、Node.js 和 pnpm。
 
 ~~~bash
+git clone https://github.com/kerntau/moments.git
+cd moments
 cd backend
 go run .
+~~~
 
-# 新终端
+另开终端启动前端：
+
+~~~bash
 cd front-react
 pnpm install
 pnpm dev
 ~~~
 
-生产构建：
+## 06. DEPLOYMENT & VERIFICATION // 部署与验证
+
+Linux 可审阅 install.sh 后执行。生产构建：
 
 ~~~bash
-cd front-react
-pnpm build
-cd ../backend
-go build -tags prod -ldflags="-s -w" -o dist/moments .
+cd front-react && pnpm build
+cd ../backend && go build -tags prod -ldflags="-s -w" -o dist/moments .
 ~~~
 
-HTTPS、JWT 密钥、对象存储凭据和地图 API Key 应通过部署平台的密钥管理提供。
+发布前验证登录、动态发布、媒体上传、评论、地图降级和数据备份。JWT_KEY、对象存储凭据、地图 API Key 与数据目录必须由部署平台保护。
 
-## 许可证
+## 07. ENGINEERING CONTRACT // 工程契约
 
-MIT，详见 LICENSE.txt。
+- 升级和迁移必须保留 SQLite 与上传目录。
+- 文件上传需校验类型、大小、路径和权限。
+- 外部地图/对象存储不可用时提供明确降级或错误提示。
+- 后端 API 与前端类型变更需同步验证。
+
+## 08. ROADMAP // 演进路线
+
+- [x] 动态、媒体、评论、点赞和位置
+- [x] SQLite 持久化与可选对象存储
+- [ ] 更细粒度的媒体权限
+- [ ] 可选的多用户与通知模块
+
+## 09. LICENSE // 许可证
+
+遵循 [MIT](LICENSE.txt)。
