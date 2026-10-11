@@ -83,20 +83,6 @@ cd ../backend && go build -tags prod -ldflags="-s -w" -o dist/moments .
 
 发布前验证登录、动态发布、媒体上传、评论、地图降级和数据备份。JWT_KEY、对象存储凭据、地图 API Key 与数据目录必须由部署平台保护。
 
-## 07. ENGINEERING CONTRACT // 工程契约
-
-- 升级和迁移必须保留 SQLite 与上传目录。
-- 文件上传需校验类型、大小、路径和权限。
-- 外部地图/对象存储不可用时提供明确降级或错误提示。
-- 后端 API 与前端类型变更需同步验证。
-
-## 08. ROADMAP // 演进路线
-
-- [x] 动态、媒体、评论、点赞和位置
-- [x] SQLite 持久化与可选对象存储
-- [ ] 更细粒度的媒体权限
-- [ ] 可选的多用户与通知模块
-
-## 09. LICENSE // 许可证
+## 07. LICENSE // 许可证
 
 遵循 [MIT](LICENSE.txt)。
